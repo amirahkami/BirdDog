@@ -1,0 +1,85 @@
+name: careerfox
+
+# CareerFox service topology.
+# Everything runs in containers — nothing is executed on the host macOS.
+# The LLM is NOT a service here: it lives on an existing external server
+# (OpenWebUI + Ollama at openwebui.futuristic.team) and is reached over the network.
+#
+# NOTE: `api`, `web`, and `worker` are placeholder containers until real
+# development begins. When it does, replace each `image:` with `build: ./<dir>`
+# and a proper Dockerfile. `db` is fully functional today.
+
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-careerfox}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-careerfox}
+      POSTGRES_DB: ${POSTGRES_DB:-careerfox}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-careerfox} -d ${POSTGRES_DB:-careerfox}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  api:
+    # Placeholder until development starts — replace with `build: ./api`.
+    image: python:3.12-slim
+    working_dir: /app
+    command: ["sh", "-c", "echo 'CareerFox api placeholder — no app code yet' && sleep infinity"]
+    environment:
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-careerfox}:${POSTGRES_PASSWORD:-careerfox}@db:5432/${POSTGRES_DB:-careerfox}
+      OPENWEBUI_BASE_URL: ${OPENWEBUI_BASE_URL}
+      OPENWEBUI_API_KEY: ${OPENWEBUI_API_KEY}
+      LLM_MODEL: ${LLM_MODEL:-qwen2.5:14b-instruct}
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-bge-m3}
+    volumes:
+      - ./api:/app
+    ports:
+      - "${API_PORT:-8000}:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  worker:
+    # Placeholder until development starts — will share the api build/image.
+    # Runs scheduled job ingestion + the matching funnel.
+    image: python:3.12-slim
+    working_dir: /app
+    command: ["sh", "-c", "echo 'CareerFox worker placeholder — no app code yet' && sleep infinity"]
+    environment:
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-careerfox}:${POSTGRES_PASSWORD:-careerfox}@db:5432/${POSTGRES_DB:-careerfox}
+      OPENWEBUI_BASE_URL: ${OPENWEBUI_BASE_URL}
+      OPENWEBUI_API_KEY: ${OPENWEBUI_API_KEY}
+      LLM_MODEL: ${LLM_MODEL:-qwen2.5:14b-instruct}
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-bge-m3}
+    volumes:
+      - ./api:/app
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  web:
+    # Placeholder until development starts — replace with `build: ./web`.
+    image: node:22-alpine
+    working_dir: /app
+    command: ["sh", "-c", "echo 'CareerFox web placeholder — no app code yet' && sleep infinity"]
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:${API_PORT:-8000}
+    volumes:
+      - ./web:/app
+    ports:
+      - "${WEB_PORT:-3000}:3000"
+    depends_on:
+      - api
+    restart: unless-stopped
+
+volumes:
+  db_data:
