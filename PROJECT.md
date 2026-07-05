@@ -91,13 +91,22 @@ A daily batch runs the pipeline as separable, config-driven tasks:
 
 ## Data sources (planned)
 
-Sequenced to keep v1 honest (one common schema + a dedup step across sources):
+Principle: **employer-direct beats aggregators** — ATS feeds (and Arbeitnow, which bundles them) come straight from the company's careers page, so data is structured, current, and non-duplicated. All sources below are free and legally clean. Sequenced to keep v1 honest (one common schema + a dedup step across sources):
 
-1. **Arbeitnow** (DE + remote, free API) — v1 anchor; build the funnel against real data first.
-2. **ATS boards** (Greenhouse / Lever / Ashby) — curated company list for the highest-signal matches (company list decided when we add it).
-3. **Remotive** (remote design) and **Adzuna** (DE breadth) — added once dedup is in place.
+1. **Arbeitnow** — v1 anchor. Free, no key, Europe + remote; pre-aggregates many ATS feeds into one call, with `remote` and `visa_sponsorship` flags.
+   `https://www.arbeitnow.com/api/job-board-api`
+2. **ATS direct feeds** — curated company list for the highest-signal matches (no auth/key; per-company):
+   - Greenhouse — `boards-api.greenhouse.io/v1/boards/{company}/jobs?content=true`
+   - Lever — `api.lever.co/v0/postings/{company}?mode=json`
+   - Ashby — `api.ashbyhq.com/posting-api/job-board/{company}`
+   - **Personio** — `{company}.jobs.personio.de/xml` — Munich-based ATS, widely used by German companies (key for the DE market)
+3. **Remotive** — the remote-design slice. `remotive.com/api/remote-jobs?category=design`
 
-No LinkedIn/Indeed scraping in v1.
+**Excluded from v1:**
+
+- **Adzuna** — free tier is "validation/testing only" per its ToS, plus mandatory "Jobs by Adzuna" attribution; not genuinely free for a production product.
+- **Arbeitsagentur** (largest DE database, government-trustworthy) — Terms of Use prohibit automated access and reuse without a signed **HR-BA XML cooperation agreement**. Revisit only via that official (free-of-charge) partnership.
+- **LinkedIn / Indeed / Xing / StepStone** scraping — ToS-hostile and fragile.
 
 ## Running
 
@@ -114,5 +123,6 @@ docker compose up
 ## Open questions
 
 - ATS company list for source #2 (decide when we add ATS).
+- Confirm Remotive / RemoteOK attribution expectations.
 - Whether to build a small labeled eval set for matching quality.
 - Fine-tune the daily cadence once we see real posting volume.
