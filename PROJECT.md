@@ -54,7 +54,7 @@ enumerate → poll → normalize → dedup → filter → match → store → se
 | **normalize** | Map every source to one schema `{source, company, title, location, remote, description, url, source_id, posted_at}`. |
 | **dedup** | Fuzzy key `normalize(company + title + location)` — sources share no common id. |
 | **filter** | Apply the niche: **location first (cheap)**, then role keywords. |
-| **match** | Embedding rank → self-hosted LLM reads the top candidates → fit score + rationale (+ DE/EN tag). |
+| **match** | (embedding rank later) self-hosted LLM reads the top candidates → fit score + rationale (+ DE/EN tag). |
 | **store / serve** | Postgres + pgvector → FastAPI API → Next.js dashboard. |
 
 **Runtime components** (all in Docker Compose; nothing runs on the host):
@@ -65,7 +65,17 @@ enumerate → poll → normalize → dedup → filter → match → store → se
 | `api` | FastAPI | REST API |
 | `worker` | Python | Enumerate, poll, filter, match (scheduled) |
 | `db` | Postgres + pgvector | Jobs, companies, niches, users, matches, embeddings |
+| `keycloak` | Keycloak | User login (OIDC); FastAPI verifies its tokens |
 | LLM | Self-hosted OpenWebUI + Ollama (external) | Reads full descriptions, scores fit, writes cover letters |
+
+## Tech stack
+
+- **Backend:** FastAPI · SQLAlchemy 2 + Alembic · Pydantic v2 · httpx (async) · lxml (Personio XML) · APScheduler · pymupdf (CV PDFs)
+- **Frontend:** Next.js + TypeScript · Tailwind CSS + shadcn/ui · TanStack Query
+- **Data / AI:** Postgres + pgvector · Ollama (self-hosted) — `qwen2.5:14b-instruct` (match); `qwen3-embedding` added later
+- **Auth:** Keycloak (self-hosted, OIDC) — Next.js logs in, FastAPI verifies tokens
+- **Infra / tooling:** Docker Compose · uv (Python deps) · pnpm (Node deps) · pytest + Playwright
+- **Scale path:** Celery + Redis if the scheduler ever needs parallelism/retries
 
 ## Company finder & radar
 
@@ -79,7 +89,7 @@ A funnel that spends LLM time only where it matters:
 
 1. **Location filter (cheap)** — On-site Munich / Remote-DE / Remote-EU. Done *before* the LLM.
 2. **Role + keyword filter** — narrows to niche candidates.
-3. **Embedding rank** (multilingual, pgvector) — order the candidates.
+3. **Embedding rank** (multilingual, pgvector) — *deferred for v1* (cheap filter already narrows enough); add `qwen3-embedding` later to smart-rank when candidate counts get large.
 4. **LLM deep read** — self-hosted model reads full descriptions of the top ~20–40 → fit score + "why it fits" + DE/EN tag.
 
 Key: each job is embedded **once at ingest** (shared across users/niches), and the LLM only ever sees a few dozen candidates per niche.
@@ -98,7 +108,7 @@ Key: each job is embedded **once at ingest** (shared across users/niches), and t
 
 - **Serving:** self-hosted OpenWebUI backed by Ollama.
 - **Matcher:** `qwen2.5:14b-instruct` (validated on German/English fit-scoring). Fast tier: `qwen2.5:7b-instruct`.
-- **Embeddings:** `bge-m3` (multilingual, DE + EN).
+- **Embeddings:** deferred for v1; add **`qwen3-embedding`** (multilingual, fits 16 GB VRAM) when candidate volume needs smarter ranking.
 - **Integration note:** call the native `/ollama/api/chat` endpoint with `"format":"json"` — the OpenAI passthrough is disabled on the server.
 
 ## Data sources
