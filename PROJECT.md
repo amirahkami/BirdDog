@@ -15,6 +15,9 @@ Pre-development. Concept refined and validated; infrastructure scaffolded with D
 - **Region:** Munich or remote (German + English postings).
 - **Input:** set criteria once — role, location, remote/on-site, keywords.
 - **Delivery:** review curated matches on a web dashboard.
+- **Match card:** fit score + a short "why it fits" rationale + apply link.
+- **Feedback:** thumbs up/down that nudges future ranking.
+- **Rationale language:** German + English.
 
 ## Architecture
 
@@ -62,7 +65,7 @@ A funnel that spends expensive LLM tokens only where they matter:
 
 1. **Structured filter** (SQL) — role / location / remote / keywords → thousands to hundreds.
 2. **Embedding rank** (multilingual, pgvector) — hundreds to dozens.
-3. **LLM deep read** — self-hosted model reads full descriptions of the top ~20–40, returns a fit score + rationale.
+3. **LLM deep read** — self-hosted model reads full descriptions of the top ~20–40, returns a fit score + a short "why it fits" rationale (German or English).
 4. **Store** — matches persisted for the dashboard.
 
 Key: each job is embedded **once at ingest** (shared across users), so LLM cost scales with `users × top-N`, not `users × all jobs`.
@@ -92,6 +95,7 @@ docker compose up
 
 ## Open questions
 
-- Rationale language — English / German / mirror the posting.
+- Rationale language policy — match the posting vs. user-selectable (both German + English supported).
 - Match refresh cadence — hourly / daily.
-- Final data-source shortlist + a small labeled eval set for matching quality.
+- Final data-source shortlist (Arbeitnow / ATS boards / Remotive / Adzuna-DE).
+- Whether to build a small labeled eval set for matching quality.
