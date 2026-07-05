@@ -28,6 +28,34 @@ Pre-development. Concept refined and validated; infrastructure scaffolded with D
 
 Everything runs via **Docker Compose**; nothing is executed on the host. The LLM lives on an existing external server (`openwebui.futuristic.team`) and is reached over the network.
 
+## Project structure
+
+```text
+CareerFox/
+├── docker-compose.yml      # db + api/web/worker services
+├── .env.example            # config template (copy to .env)
+├── PROJECT.md
+├── api/                    # FastAPI backend (+ worker)
+│   ├── app/
+│   │   ├── core/           # settings / config
+│   │   ├── db/             # models, session, pgvector
+│   │   ├── ingestion/
+│   │   │   └── sources/    # arbeitnow, adzuna, remotive, ats adapters
+│   │   ├── matching/       # funnel: filter → embed → LLM rerank
+│   │   ├── llm/            # OpenWebUI / Ollama client
+│   │   ├── routers/        # API endpoints
+│   │   └── schemas/        # Pydantic models
+│   ├── migrations/         # Alembic
+│   └── tests/
+└── web/                    # Next.js frontend
+    └── src/
+        ├── app/            # pages (criteria form, matches dashboard)
+        ├── components/     # UI components
+        └── lib/            # API client
+```
+
+Directories hold placeholder markers (`README.md` / `.gitkeep`) until development begins.
+
 ## Matching pipeline (planned)
 
 A funnel that spends expensive LLM tokens only where they matter:
