@@ -89,24 +89,25 @@ A daily batch runs the pipeline as separable, config-driven tasks:
 - **Embeddings:** `bge-m3` (multilingual, DE + EN).
 - **Integration note:** call the native `/ollama/api/chat` endpoint with `"format":"json"` — the OpenAI passthrough is disabled on the server.
 
-## Data sources (planned)
+## Data sources (decided)
 
-Principle: **employer-direct beats aggregators** — ATS feeds (and Arbeitnow, which bundles them) come straight from the company's careers page, so data is structured, current, and non-duplicated. All sources below are free and legally clean. Sequenced to keep v1 honest (one common schema + a dedup step across sources):
+Ranked by role, after live in-container testing (see the note at the end).
 
-1. **Arbeitnow** — v1 anchor. Free, no key, Europe + remote; pre-aggregates many ATS feeds into one call, with `remote` and `visa_sponsorship` flags.
-   `https://www.arbeitnow.com/api/job-board-api`
-2. **ATS direct feeds** — curated company list for the highest-signal matches (no auth/key; per-company):
+1. **ATS direct feeds — PRIMARY.** The only free sources that return the **full job description** plus structured location/seniority. No auth/key; one call per company, so they need a curated company list.
+   - **Personio** — `{company}.jobs.personio.de/xml` (Munich-based ATS; key for the DE market)
    - Greenhouse — `boards-api.greenhouse.io/v1/boards/{company}/jobs?content=true`
    - Lever — `api.lever.co/v0/postings/{company}?mode=json`
    - Ashby — `api.ashbyhq.com/posting-api/job-board/{company}`
-   - **Personio** — `{company}.jobs.personio.de/xml` — Munich-based ATS, widely used by German companies (key for the DE market)
-3. **Remotive** — the remote-design slice. `remotive.com/api/remote-jobs?category=design`
+2. **Remotive — EU-remote fill.** Free, full descriptions, has a region/eligibility field. `remotive.com/api/remote-jobs?category=design`
+3. **Bundesagentur — discovery helper only.** Real server-side search (role + city) reveals which employers hire in Munich, but returns **no descriptions** (detail endpoint = HTTP 403), is Germany-only / no remote, and is ToS-restricted. Use it **offline to build the company list — never as a live feed.**
+4. **Arbeitnow — backup net.** Free (asks for a backlink) but an unfiltered, spam-heavy firehose. Keep as a fallback; don't build on it. `https://www.arbeitnow.com/api/job-board-api`
 
-**Excluded from v1:**
+**Rejected:**
 
-- **Adzuna** — free tier is "validation/testing only" per its ToS, plus mandatory "Jobs by Adzuna" attribution; not genuinely free for a production product.
-- **Arbeitsagentur** (largest DE database, government-trustworthy) — Terms of Use prohibit automated access and reuse without a signed **HR-BA XML cooperation agreement**. Revisit only via that official (free-of-charge) partnership.
-- **LinkedIn / Indeed / Xing / StepStone** scraping — ToS-hostile and fragile.
+- **Adzuna** — free tier is "validation/testing only" per ToS + mandatory "Jobs by Adzuna" attribution; not free for production.
+- **Indeed / StepStone / LinkedIn / Xing** — no free/legal API; obtainable only by scraping (against their terms, fragile, actively blocked). Most of their listings originate from the ATS pages we already pull directly.
+
+> Live test (Docker, 2026-07-05): ATS = clean full text; Bundesagentur = 5 UX / 49 Designer near Munich but no descriptions (403) and no remote; Arbeitnow = 16/100 recruiter spam; Remotive = small but clean.
 
 ## Running
 
@@ -122,7 +123,7 @@ docker compose up
 
 ## Open questions
 
-- ATS company list for source #2 (decide when we add ATS).
+- Build the Munich / EU design-forward ATS company list (the primary source; seed names from Bundesagentur).
 - Confirm Remotive / RemoteOK attribution expectations.
 - Whether to build a small labeled eval set for matching quality.
 - Fine-tune the daily cadence once we see real posting volume.

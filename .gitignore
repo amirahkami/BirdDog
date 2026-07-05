@@ -19,3 +19,6 @@ build/
 *.swp
 .idea/
 .vscode/
+
+# Scratch / investigation (throwaway API probes)
+playground/
