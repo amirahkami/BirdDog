@@ -10,14 +10,14 @@ Pre-development. Concept refined and validated; infrastructure scaffolded with D
 
 ## v1 scope
 
-- **Users:** skilled but unemployed professionals seeking the right role.
+- **Users:** skilled but unemployed professionals seeking the right role — a key segment is internationals/expats in Germany (broadly bilingual, often stronger in English than German).
 - **Vertical:** UX designers (single field first).
 - **Region:** Munich or remote (German + English postings).
 - **Input:** set criteria once — role, location, remote/on-site, keywords.
 - **Delivery:** review curated matches on a web dashboard.
 - **Match card:** fit score + a short "why it fits" rationale + apply link.
 - **Feedback:** thumbs up/down that nudges future ranking.
-- **Rationale language:** German + English.
+- **Rationale language:** English by default, user-selectable German later; job postings kept in their original language.
 
 ## Architecture
 
@@ -65,10 +65,22 @@ A funnel that spends expensive LLM tokens only where they matter:
 
 1. **Structured filter** (SQL) — role / location / remote / keywords → thousands to hundreds.
 2. **Embedding rank** (multilingual, pgvector) — hundreds to dozens.
-3. **LLM deep read** — self-hosted model reads full descriptions of the top ~20–40, returns a fit score + a short "why it fits" rationale (German or English).
+3. **LLM deep read** — self-hosted model reads full descriptions of the top ~20–40, returns a fit score + a short "why it fits" rationale (English by default).
 4. **Store** — matches persisted for the dashboard.
 
 Key: each job is embedded **once at ingest** (shared across users), so LLM cost scales with `users × top-N`, not `users × all jobs`.
+
+## Scheduling
+
+A daily batch runs the pipeline as separable, config-driven tasks:
+
+```text
+17:00 Europe/Berlin  →  ingest (per source)  →  normalize  →  embed  →  match all users  →  store
+```
+
+- **v1:** APScheduler inside the `worker` — one cron trigger, no extra infra. Schedule is env-driven (`SCHEDULE_CRON`, `TZ=Europe/Berlin`).
+- **Scale path:** Celery + Redis + Beat once retries / per-source parallelism / multiple workers are needed (adds a `redis` service).
+- Ingest and match stay separate tasks, so their cadences can diverge later.
 
 ## LLM
 
@@ -79,7 +91,13 @@ Key: each job is embedded **once at ingest** (shared across users), so LLM cost 
 
 ## Data sources (planned)
 
-Anchor on **Arbeitnow** (DE + remote, free API), **Adzuna** (DE endpoint), **Remotive** (remote design), plus a curated **ATS** list (Greenhouse / Lever / Ashby). No LinkedIn/Indeed scraping in v1.
+Sequenced to keep v1 honest (one common schema + a dedup step across sources):
+
+1. **Arbeitnow** (DE + remote, free API) — v1 anchor; build the funnel against real data first.
+2. **ATS boards** (Greenhouse / Lever / Ashby) — curated company list for the highest-signal matches (company list decided when we add it).
+3. **Remotive** (remote design) and **Adzuna** (DE breadth) — added once dedup is in place.
+
+No LinkedIn/Indeed scraping in v1.
 
 ## Running
 
@@ -95,7 +113,6 @@ docker compose up
 
 ## Open questions
 
-- Rationale language policy — match the posting vs. user-selectable (both German + English supported).
-- Match refresh cadence — hourly / daily.
-- Final data-source shortlist (Arbeitnow / ATS boards / Remotive / Adzuna-DE).
+- ATS company list for source #2 (decide when we add ATS).
 - Whether to build a small labeled eval set for matching quality.
+- Fine-tune the daily cadence once we see real posting volume.
