@@ -1,6 +1,6 @@
-name: careerfox
+name: birddog
 
-# CareerFox service topology.
+# BirdDog service topology.
 # Everything runs in containers — nothing is executed on the host macOS.
 # The LLM is NOT a service here: it lives on an existing external server
 # (OpenWebUI + Ollama at openwebui.futuristic.team) and is reached over the network.
@@ -13,15 +13,15 @@ services:
   db:
     image: pgvector/pgvector:pg16
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-careerfox}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-careerfox}
-      POSTGRES_DB: ${POSTGRES_DB:-careerfox}
+      POSTGRES_USER: ${POSTGRES_USER:-birddog}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-birddog}
+      POSTGRES_DB: ${POSTGRES_DB:-birddog}
     ports:
       - "${DB_PORT:-5432}:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-careerfox} -d ${POSTGRES_DB:-careerfox}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-birddog} -d ${POSTGRES_DB:-birddog}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -31,9 +31,9 @@ services:
     # Placeholder until development starts — replace with `build: ./api`.
     image: python:3.12-slim
     working_dir: /app
-    command: ["sh", "-c", "echo 'CareerFox api placeholder — no app code yet' && sleep infinity"]
+    command: ["sh", "-c", "echo 'BirdDog api placeholder — no app code yet' && sleep infinity"]
     environment:
-      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-careerfox}:${POSTGRES_PASSWORD:-careerfox}@db:5432/${POSTGRES_DB:-careerfox}
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-birddog}:${POSTGRES_PASSWORD:-birddog}@db:5432/${POSTGRES_DB:-birddog}
       OPENWEBUI_BASE_URL: ${OPENWEBUI_BASE_URL}
       OPENWEBUI_API_KEY: ${OPENWEBUI_API_KEY}
       LLM_MODEL: ${LLM_MODEL:-qwen2.5:14b-instruct}
@@ -52,9 +52,9 @@ services:
     # Runs scheduled job ingestion + the matching funnel.
     image: python:3.12-slim
     working_dir: /app
-    command: ["sh", "-c", "echo 'CareerFox worker placeholder — no app code yet' && sleep infinity"]
+    command: ["sh", "-c", "echo 'BirdDog worker placeholder — no app code yet' && sleep infinity"]
     environment:
-      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-careerfox}:${POSTGRES_PASSWORD:-careerfox}@db:5432/${POSTGRES_DB:-careerfox}
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-birddog}:${POSTGRES_PASSWORD:-birddog}@db:5432/${POSTGRES_DB:-birddog}
       OPENWEBUI_BASE_URL: ${OPENWEBUI_BASE_URL}
       OPENWEBUI_API_KEY: ${OPENWEBUI_API_KEY}
       LLM_MODEL: ${LLM_MODEL:-qwen2.5:14b-instruct}
@@ -70,7 +70,7 @@ services:
     # Placeholder until development starts — replace with `build: ./web`.
     image: node:22-alpine
     working_dir: /app
-    command: ["sh", "-c", "echo 'CareerFox web placeholder — no app code yet' && sleep infinity"]
+    command: ["sh", "-c", "echo 'BirdDog web placeholder — no app code yet' && sleep infinity"]
     environment:
       NEXT_PUBLIC_API_URL: http://localhost:${API_PORT:-8000}
     volumes:

@@ -1,8 +1,8 @@
-# CareerFox
+# BirdDog
 
 **AI-powered job search that saves you time in your specific field.**
 
-Pick your field (a "niche"), and CareerFox gathers jobs daily, filters out the noise, and uses a self-hosted LLM to read each promising job in full and score how well it fits you. No endless scrolling.
+Pick your field (a "niche"), and BirdDog gathers jobs daily, filters out the noise, and uses a self-hosted LLM to read each promising job in full and score how well it fits you. No endless scrolling.
 
 ## Status
 
@@ -26,7 +26,7 @@ Concept **and architecture FINALIZED and validated in the playground** (real API
 ```
 Sign up → upload CV
   → create niche: role + place (On-site Munich / Remote-DE / Remote-EU) + keywords
-  → CareerFox runs daily in the background
+  → BirdDog runs daily in the background
   → dashboard: ranked matches
        card = fit score + "why it fits" + DE/EN tag + [Apply] [Write cover letter]
   → if too few matches: [Broaden search] → relax level / nearby cities / wider remote
@@ -158,7 +158,7 @@ Scoring is **per-user** using the CV (falls back to niche criteria when no/unrea
 ## Project structure
 
 ```text
-CareerFox/
+BirdDog/
 ├── docker-compose.yml      # db + api/web/worker services
 ├── .env.example            # config template (copy to .env)
 ├── PROJECT.md
