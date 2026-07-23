@@ -17,7 +17,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-birddog}
       POSTGRES_DB: ${POSTGRES_DB:-birddog}
     ports:
-      - "${DB_PORT:-5432}:5432"
+      - "${DB_PORT:-22543}:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
     healthcheck:
@@ -41,7 +41,7 @@ services:
     volumes:
       - ./api:/app
     ports:
-      - "${API_PORT:-8000}:8000"
+      - "${API_PORT:-22800}:8000"
     depends_on:
       db:
         condition: service_healthy
@@ -72,11 +72,11 @@ services:
     working_dir: /app
     command: ["sh", "-c", "echo 'BirdDog web placeholder — no app code yet' && sleep infinity"]
     environment:
-      NEXT_PUBLIC_API_URL: http://localhost:${API_PORT:-8000}
+      NEXT_PUBLIC_API_URL: http://localhost:${API_PORT:-22800}
     volumes:
       - ./web:/app
     ports:
-      - "${WEB_PORT:-3000}:3000"
+      - "${WEB_PORT:-22300}:3000"
     depends_on:
       - api
     restart: unless-stopped

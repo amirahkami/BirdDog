@@ -190,8 +190,8 @@ cp .env.example .env    # then set OPENWEBUI_API_KEY
 docker compose up
 ```
 
-- Web: http://localhost:3000
-- API: http://localhost:8000
+- Web: http://localhost:22300
+- API: http://localhost:22800
 
 > `api`, `web`, and `worker` are placeholder containers until development begins; `db` (Postgres + pgvector) is fully functional.
 
