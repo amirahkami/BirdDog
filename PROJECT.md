@@ -6,7 +6,7 @@ Pick your field (a "niche"), and BirdDog gathers jobs daily, filters out the noi
 
 ## Status
 
-Concept **and architecture FINALIZED and validated in the playground** (real API tests in Docker) — coverage, accuracy, scale, and end-to-end (Mina & Tom, with links) all checked. The Dockerized foundation is implemented: Next.js frontend, FastAPI health API, PostgreSQL connectivity, and APScheduler worker.
+Concept **and architecture FINALIZED and validated in the playground** (real API tests in Docker) — coverage, accuracy, scale, and end-to-end (Mina & Tom, with links) all checked. The Dockerized foundation is implemented: Next.js frontend, FastAPI health API, PostgreSQL connectivity, APScheduler worker, and the seven-table SQLAlchemy/Alembic data layer.
 
 ## v1 scope
 

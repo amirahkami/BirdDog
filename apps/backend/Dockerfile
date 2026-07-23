@@ -19,4 +19,6 @@ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload
 FROM base AS runtime
 RUN uv sync --frozen --no-dev
 COPY app ./app
+COPY alembic.ini ./
+COPY migrations ./migrations
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

@@ -9,7 +9,8 @@ self-hosted LLM to read each promising job in full and score how well it fits yo
 
 Concept and architecture are finalized and validated in the playground (coverage, accuracy, scale,
 end-to-end). The containerized application foundation is running: Next.js, FastAPI, APScheduler,
-and PostgreSQL with pgvector. Product features are the next development phase.
+and PostgreSQL with pgvector. The seven-table data model and reversible Alembic migrations are
+implemented. Product features are the next development phase.
 
 ## Quick start
 
@@ -22,7 +23,8 @@ docker compose up --build
 - API: http://localhost:22800
 
 The status page verifies the frontend, API, and database connection. The worker runs the daily
-APScheduler schedule; ingestion tasks will be added in a later milestone.
+APScheduler schedule, and the migration service applies the schema before application startup.
+Ingestion tasks will be added in a later milestone.
 
 ## More
 

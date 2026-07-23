@@ -21,6 +21,22 @@ services:
       retries: 5
     restart: unless-stopped
 
+  migrate:
+    image: birddog-backend:dev
+    build:
+      context: ./apps/backend
+      target: development
+    working_dir: /app
+    command: ["alembic", "upgrade", "head"]
+    environment:
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-birddog}:${POSTGRES_PASSWORD:-birddog}@db:5432/${POSTGRES_DB:-birddog}
+    volumes:
+      - ./apps/backend:/app
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+
   api:
     image: birddog-backend:dev
     build:
@@ -42,6 +58,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=2)"]
       interval: 10s
@@ -71,6 +89,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     healthcheck:
       test: ["CMD", "python", "-c", "import os; os.kill(1, 0)"]
       interval: 15s

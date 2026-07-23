@@ -3,7 +3,8 @@
 Runs in the `api` container (and shares code with `worker`). Talks to
 Postgres + pgvector and the external self-hosted LLM (OpenWebUI + Ollama).
 
-The foundation includes the FastAPI health endpoint, PostgreSQL connectivity, and APScheduler worker.
+The foundation includes the FastAPI health endpoint, PostgreSQL connectivity, APScheduler worker,
+seven SQLAlchemy models, and reversible Alembic migrations.
 
 ## Layout
 
