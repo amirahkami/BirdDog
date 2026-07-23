@@ -6,7 +6,7 @@ Pick your field (a "niche"), and BirdDog gathers jobs daily, filters out the noi
 
 ## Status
 
-Concept **and architecture FINALIZED and validated in the playground** (real API tests in Docker) — coverage, accuracy, scale, and end-to-end (Mina & Tom, with links) all checked. The Dockerized foundation is implemented: Next.js frontend, FastAPI health API, PostgreSQL connectivity, APScheduler worker, and the seven-table SQLAlchemy/Alembic data layer.
+Concept **and architecture FINALIZED and validated in the playground** (real API tests in Docker) — coverage, accuracy, scale, and end-to-end (Mina & Tom, with links) all checked. Milestones 1–3 are implemented: the Dockerized foundation, seven-table SQLAlchemy/Alembic data layer, and invite-only authentication with Keycloak 26.7 and Mailpit.
 
 ## v1 scope
 
@@ -24,7 +24,7 @@ Concept **and architecture FINALIZED and validated in the playground** (real API
 ## User flow
 
 ```
-Sign up → upload CV
+Accept admin invitation → upload CV
   → create niche: role + place (On-site Munich / Remote-DE / Remote-EU) + keywords
   → BirdDog runs daily in the background
   → dashboard: ranked matches
@@ -68,6 +68,7 @@ enumerate → poll → normalize → dedup → filter → match → store → se
 | `worker` | Python | Enumerate, poll, filter, match (scheduled) |
 | `db` | Postgres + pgvector | Jobs, companies, niches, users, matches, embeddings |
 | `keycloak` | Keycloak | User login (OIDC); FastAPI verifies its tokens |
+| `mailpit` | Mailpit | Captures invitation email during development |
 | LLM | Self-hosted OpenWebUI + Ollama (external) | Reads full descriptions, scores fit, writes cover letters |
 
 ## Tech stack
@@ -75,7 +76,7 @@ enumerate → poll → normalize → dedup → filter → match → store → se
 - **Backend:** FastAPI · SQLAlchemy 2 + Alembic · Pydantic v2 · httpx (async) · lxml (Personio XML) · APScheduler · pymupdf (CV PDFs)
 - **Frontend:** Next.js + TypeScript · Tailwind CSS + shadcn/ui · TanStack Query
 - **Data / AI:** Postgres + pgvector · Ollama (self-hosted) — `qwen2.5:14b-instruct` (match + cover letters); `qwen3-embedding:8b` available (embeddings not needed for v1)
-- **Auth:** Keycloak (self-hosted, OIDC) — Next.js logs in, FastAPI verifies tokens
+- **Auth:** Keycloak 26.7 + NextAuth (OIDC) — public registration disabled; admin invitations only
 - **Infra / tooling:** Docker Compose · uv (Python deps) · pnpm (Node deps) · pytest + Playwright
 - **Scale path:** Celery + Redis if the scheduler ever needs parallelism/retries
 
@@ -194,14 +195,18 @@ Feature directories remain intentionally empty until their development milestone
 ## Running
 
 ```sh
-cp .env.example .env    # set OPENWEBUI_API_KEY when AI integration begins
+cp .env.example .env    # replace every change-me value
 docker compose up --build
 ```
 
 - Web: http://localhost:22300
-- API: http://localhost:22800
+- Keycloak: http://auth.localhost:22080
+- Mailpit: http://localhost:22025
+- API: http://localhost:22800 (protected; public docs are disabled)
 
-The frontend, API, worker, and database run as real development services with Docker health checks.
+The initial `birddog` administrator is the only user. Other users must be invited through the
+BirdDog organization in Keycloak. The frontend, API, worker, database, Keycloak, and Mailpit run as
+real development services with Docker health checks.
 
 ## Open questions
 

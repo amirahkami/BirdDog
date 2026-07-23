@@ -7,24 +7,27 @@ self-hosted LLM to read each promising job in full and score how well it fits yo
 
 ## Status
 
-Concept and architecture are finalized and validated in the playground (coverage, accuracy, scale,
-end-to-end). The containerized application foundation is running: Next.js, FastAPI, APScheduler,
-and PostgreSQL with pgvector. The seven-table data model and reversible Alembic migrations are
-implemented. Product features are the next development phase.
+Milestones 1–3 are implemented: the Dockerized application foundation, seven-table data layer,
+and invite-only authentication. Keycloak 26.7 protects the frontend and API. The initial `birddog`
+administrator is the only user; all future users join by admin invitation. Development email is
+captured by Mailpit.
 
 ## Quick start
 
 ```sh
-cp .env.example .env    # then set OPENWEBUI_API_KEY when AI integration begins
+cp .env.example .env    # replace every change-me value
 docker compose up --build
 ```
 
 - Web: http://localhost:22300
-- API: http://localhost:22800
+- Keycloak: http://auth.localhost:22080
+- Mailpit: http://localhost:22025
+- API: http://localhost:22800 (protected; public docs are disabled)
 
-The status page verifies the frontend, API, and database connection. The worker runs the daily
-APScheduler schedule, and the migration service applies the schema before application startup.
-Ingestion tasks will be added in a later milestone.
+Sign in as `birddog`; its local password is `BIRDDOG_ADMIN_PASSWORD` in `.env`. Service status is
+available only in the app's admin dashboard. To invite a user, open the BirdDog realm in Keycloak,
+then use **Organizations → BirdDog → Members → Invite member**. Mailpit receives the development
+email. Public registration is disabled.
 
 ## More
 

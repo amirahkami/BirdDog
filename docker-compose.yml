@@ -21,6 +21,100 @@ services:
       retries: 5
     restart: unless-stopped
 
+  keycloak-db-init:
+    image: pgvector/pgvector:pg16
+    entrypoint: ["/bin/sh", "-ec"]
+    command:
+      - |
+        psql -h db -U "$${POSTGRES_USER}" -d postgres -v ON_ERROR_STOP=1 \
+          -v kc_user="$${KEYCLOAK_DB_USER}" \
+          -v kc_password="$${KEYCLOAK_DB_PASSWORD}" \
+          -v kc_db="$${KEYCLOAK_DB_NAME}" <<'SQL'
+        SELECT format('CREATE ROLE %I LOGIN PASSWORD %L', :'kc_user', :'kc_password')
+        WHERE NOT EXISTS (SELECT FROM pg_roles WHERE rolname = :'kc_user') \gexec
+        SELECT format('ALTER ROLE %I WITH LOGIN PASSWORD %L', :'kc_user', :'kc_password') \gexec
+        SELECT format('CREATE DATABASE %I OWNER %I', :'kc_db', :'kc_user')
+        WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = :'kc_db') \gexec
+        SELECT format('ALTER DATABASE %I OWNER TO %I', :'kc_db', :'kc_user') \gexec
+        SQL
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-birddog}
+      PGPASSWORD: ${POSTGRES_PASSWORD:-birddog}
+      KEYCLOAK_DB_USER: ${KEYCLOAK_DB_USER:-keycloak}
+      KEYCLOAK_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD:?KEYCLOAK_DB_PASSWORD is required}
+      KEYCLOAK_DB_NAME: ${KEYCLOAK_DB_NAME:-keycloak}
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+
+  mailpit:
+    image: axllent/mailpit:v1.30.0
+    environment:
+      MP_DATABASE: /data/mailpit.db
+      MP_MAX_MESSAGES: 500
+      MP_DISABLE_VERSION_CHECK: "true"
+      TZ: ${TIMEZONE:-Europe/Berlin}
+    volumes:
+      - mailpit_data:/data
+    ports:
+      - "${MAILPIT_UI_PORT:-22025}:8025"
+    expose:
+      - "1025"
+    restart: unless-stopped
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.7.0
+    command: ["start-dev", "--http-port=22080", "--import-realm"]
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://db:5432/${KEYCLOAK_DB_NAME:-keycloak}
+      KC_DB_USERNAME: ${KEYCLOAK_DB_USER:-keycloak}
+      KC_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD:?KEYCLOAK_DB_PASSWORD is required}
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KC_BOOTSTRAP_ADMIN_USERNAME:-birddog-kc-admin}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KC_BOOTSTRAP_ADMIN_PASSWORD:?KC_BOOTSTRAP_ADMIN_PASSWORD is required}
+      KC_HOSTNAME: http://auth.localhost:${KEYCLOAK_PORT:-22080}
+      KC_HEALTH_ENABLED: "true"
+      KC_METRICS_ENABLED: "true"
+      BIRDDOG_ADMIN_USERNAME: ${BIRDDOG_ADMIN_USERNAME:-birddog}
+      BIRDDOG_ADMIN_EMAIL: ${BIRDDOG_ADMIN_EMAIL:-ah.ahkami@gmail.com}
+      BIRDDOG_ADMIN_PASSWORD: ${BIRDDOG_ADMIN_PASSWORD:?BIRDDOG_ADMIN_PASSWORD is required}
+      BIRDDOG_OIDC_CLIENT_SECRET: ${BIRDDOG_OIDC_CLIENT_SECRET:?BIRDDOG_OIDC_CLIENT_SECRET is required}
+    volumes:
+      - ./infra/keycloak/birddog-realm.json:/opt/keycloak/data/import/birddog-realm.json:ro
+    ports:
+      - "${KEYCLOAK_PORT:-22080}:22080"
+    networks:
+      default:
+        aliases:
+          - auth.localhost
+    depends_on:
+      keycloak-db-init:
+        condition: service_completed_successfully
+      mailpit:
+        condition: service_started
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/127.0.0.1/22080'"]
+      interval: 10s
+      timeout: 5s
+      retries: 18
+      start_period: 30s
+    restart: unless-stopped
+
+  keycloak-config:
+    image: quay.io/keycloak/keycloak:26.7.0
+    entrypoint: ["/bin/bash", "/config/configure.sh"]
+    environment:
+      KEYCLOAK_INTERNAL_URL: http://keycloak:22080
+      BIRDDOG_ADMIN_USERNAME: ${BIRDDOG_ADMIN_USERNAME:-birddog}
+      BIRDDOG_ADMIN_PASSWORD: ${BIRDDOG_ADMIN_PASSWORD:?BIRDDOG_ADMIN_PASSWORD is required}
+    volumes:
+      - ./infra/keycloak/configure.sh:/config/configure.sh:ro
+    depends_on:
+      keycloak:
+        condition: service_healthy
+    restart: "no"
+
   migrate:
     image: birddog-backend:dev
     build:
@@ -51,6 +145,11 @@ services:
       OPENWEBUI_API_KEY: ${OPENWEBUI_API_KEY:-}
       LLM_MODEL: ${LLM_MODEL:-qwen2.5:14b-instruct}
       EMBEDDING_MODEL: ${EMBEDDING_MODEL:-bge-m3}
+      KEYCLOAK_ISSUER: http://auth.localhost:${KEYCLOAK_PORT:-22080}/realms/birddog
+      KEYCLOAK_JWKS_URL: http://keycloak:22080/realms/birddog/protocol/openid-connect/certs
+      KEYCLOAK_AUDIENCE: birddog-api
+      KEYCLOAK_INTERNAL_URL: http://keycloak:22080
+      MAILPIT_API_URL: http://mailpit:8025
     volumes:
       - ./apps/backend:/app
     ports:
@@ -60,8 +159,10 @@ services:
         condition: service_healthy
       migrate:
         condition: service_completed_successfully
+      keycloak-config:
+        condition: service_completed_successfully
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=2)"]
+      test: ["CMD", "python", "-c", "import socket; s=socket.create_connection(('127.0.0.1', 8000), 2); s.close()"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -108,6 +209,12 @@ services:
     command: ["pnpm", "dev"]
     environment:
       API_INTERNAL_URL: http://api:8000
+      NEXTAUTH_URL: http://localhost:${WEB_PORT:-22300}
+      NEXTAUTH_SECRET: ${AUTH_SECRET:?AUTH_SECRET is required}
+      AUTH_SECRET: ${AUTH_SECRET:?AUTH_SECRET is required}
+      KEYCLOAK_ISSUER: http://auth.localhost:${KEYCLOAK_PORT:-22080}/realms/birddog
+      KEYCLOAK_CLIENT_ID: birddog-web
+      KEYCLOAK_CLIENT_SECRET: ${BIRDDOG_OIDC_CLIENT_SECRET:?BIRDDOG_OIDC_CLIENT_SECRET is required}
     volumes:
       - ./apps/frontend:/app
       - frontend_node_modules:/app/node_modules
@@ -117,6 +224,8 @@ services:
     depends_on:
       api:
         condition: service_healthy
+      keycloak-config:
+        condition: service_completed_successfully
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--spider", "http://127.0.0.1:3000"]
       interval: 10s
@@ -129,3 +238,4 @@ volumes:
   db_data:
   frontend_node_modules:
   frontend_next:
+  mailpit_data:

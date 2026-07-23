@@ -1,0 +1,116 @@
+{
+  "realm": "birddog",
+  "displayName": "BirdDog",
+  "enabled": true,
+  "sslRequired": "external",
+  "registrationAllowed": false,
+  "registrationEmailAsUsername": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": true,
+  "editUsernameAllowed": false,
+  "rememberMe": false,
+  "verifyEmail": true,
+  "organizationsEnabled": true,
+  "accessTokenLifespan": 3600,
+  "ssoSessionIdleTimeout": 3600,
+  "ssoSessionMaxLifespan": 28800,
+  "bruteForceProtected": true,
+  "defaultRoles": ["jobseeker"],
+  "roles": {
+    "realm": [
+      {
+        "name": "admin",
+        "description": "BirdDog administrators"
+      },
+      {
+        "name": "jobseeker",
+        "description": "BirdDog jobseekers"
+      }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "birddog-web",
+      "name": "BirdDog Web",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "secret": "${BIRDDOG_OIDC_CLIENT_SECRET}",
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "redirectUris": [
+        "http://localhost:22300/api/auth/callback/keycloak"
+      ],
+      "webOrigins": [
+        "http://localhost:22300"
+      ],
+      "attributes": {
+        "post.logout.redirect.uris": "http://localhost:22300/login"
+      },
+      "protocolMappers": [
+        {
+          "name": "birddog-api-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.client.audience": "birddog-api",
+            "id.token.claim": "false",
+            "access.token.claim": "true",
+            "introspection.token.claim": "true"
+          }
+        }
+      ]
+    }
+  ],
+  "users": [
+    {
+      "id": "00000000-0000-0000-0000-000000000002",
+      "username": "${BIRDDOG_ADMIN_USERNAME}",
+      "firstName": "BirdDog",
+      "lastName": "Admin",
+      "email": "${BIRDDOG_ADMIN_EMAIL}",
+      "emailVerified": true,
+      "enabled": true,
+      "realmRoles": ["admin"],
+      "clientRoles": {
+        "realm-management": [
+          "manage-organizations",
+          "manage-users",
+          "query-organizations",
+          "view-organizations",
+          "query-users",
+          "view-users"
+        ]
+      },
+      "credentials": [
+        {
+          "type": "password",
+          "value": "${BIRDDOG_ADMIN_PASSWORD}",
+          "temporary": false
+        }
+      ]
+    }
+  ],
+  "organizations": [
+    {
+      "id": "00000000-0000-0000-0000-000000000001",
+      "name": "BirdDog",
+      "alias": "birddog",
+      "enabled": true,
+      "description": "BirdDog users",
+      "redirectUrl": "http://localhost:22300"
+    }
+  ],
+  "smtpServer": {
+    "host": "mailpit",
+    "port": "1025",
+    "from": "no-reply@birddog.local",
+    "fromDisplayName": "BirdDog",
+    "auth": "false",
+    "starttls": "false",
+    "ssl": "false"
+  }
+}

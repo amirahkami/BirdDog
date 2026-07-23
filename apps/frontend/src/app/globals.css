@@ -30,7 +30,50 @@ body {
 main {
   width: min(72rem, calc(100% - 2rem));
   margin: 0 auto;
-  padding: clamp(3rem, 8vw, 8rem) 0;
+  padding: 1.5rem 0 clamp(3rem, 8vw, 8rem);
+}
+
+a {
+  color: var(--green);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+button {
+  padding: 0.7rem 1rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--green);
+  color: white;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: clamp(4rem, 10vw, 8rem);
+  padding: 0.8rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.topbar > div {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.link-button {
+  padding: 0;
+  background: transparent;
+  color: var(--green);
 }
 
 .hero {
@@ -81,6 +124,36 @@ h1 {
   box-shadow: 0 1rem 4rem rgb(23 33 27 / 7%);
 }
 
+.admin-status {
+  margin-top: 0;
+}
+
+.admin-status h1 {
+  max-width: 12ch;
+  font-size: clamp(2.5rem, 6vw, 5rem);
+}
+
+.login-shell {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: 1rem;
+}
+
+.login-card {
+  width: min(34rem, 100%);
+  padding: clamp(1.5rem, 5vw, 3rem);
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  background: var(--card);
+  box-shadow: 0 1rem 4rem rgb(23 33 27 / 8%);
+}
+
+.login-card h1 {
+  max-width: none;
+  font-size: clamp(2.2rem, 6vw, 4rem);
+}
+
 h2 {
   font-family: Georgia, "Times New Roman", serif;
   font-size: clamp(1.8rem, 3vw, 2.5rem);
@@ -118,6 +191,12 @@ h2 {
 }
 
 @media (max-width: 700px) {
+  .topbar,
+  .topbar > div {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
   .status-panel {
     grid-template-columns: 1fr;
   }
