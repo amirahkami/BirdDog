@@ -28,7 +28,7 @@ services:
     restart: unless-stopped
 
   api:
-    # Placeholder until development starts — replace with `build: ./api`.
+    # Placeholder until development starts — replace with `build: ./apps/backend`.
     image: python:3.12-slim
     working_dir: /app
     command: ["sh", "-c", "echo 'BirdDog api placeholder — no app code yet' && sleep infinity"]
@@ -39,7 +39,7 @@ services:
       LLM_MODEL: ${LLM_MODEL:-qwen2.5:14b-instruct}
       EMBEDDING_MODEL: ${EMBEDDING_MODEL:-bge-m3}
     volumes:
-      - ./api:/app
+      - ./apps/backend:/app
     ports:
       - "${API_PORT:-22800}:8000"
     depends_on:
@@ -60,21 +60,21 @@ services:
       LLM_MODEL: ${LLM_MODEL:-qwen2.5:14b-instruct}
       EMBEDDING_MODEL: ${EMBEDDING_MODEL:-bge-m3}
     volumes:
-      - ./api:/app
+      - ./apps/backend:/app
     depends_on:
       db:
         condition: service_healthy
     restart: unless-stopped
 
   web:
-    # Placeholder until development starts — replace with `build: ./web`.
+    # Placeholder until development starts — replace with `build: ./apps/frontend`.
     image: node:22-alpine
     working_dir: /app
     command: ["sh", "-c", "echo 'BirdDog web placeholder — no app code yet' && sleep infinity"]
     environment:
       NEXT_PUBLIC_API_URL: http://localhost:${API_PORT:-22800}
     volumes:
-      - ./web:/app
+      - ./apps/frontend:/app
     ports:
       - "${WEB_PORT:-22300}:3000"
     depends_on:

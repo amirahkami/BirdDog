@@ -162,23 +162,31 @@ BirdDog/
 ├── docker-compose.yml      # db + api/web/worker services
 ├── .env.example            # config template (copy to .env)
 ├── PROJECT.md
-├── api/                    # FastAPI backend (+ worker)
-│   ├── app/
-│   │   ├── core/           # settings / config
-│   │   ├── db/             # models, session, pgvector
-│   │   ├── ingestion/
-│   │   │   └── sources/    # layer adapters: ats (personio/greenhouse/lever/ashby), aggregators, finder
-│   │   ├── matching/       # funnel: filter → embed → LLM rerank
-│   │   ├── llm/            # OpenWebUI / Ollama client
-│   │   ├── routers/        # API endpoints
-│   │   └── schemas/        # Pydantic models
-│   ├── migrations/         # Alembic
-│   └── tests/
-└── web/                    # Next.js frontend
-    └── src/
-        ├── app/            # pages (CV upload, niche setup, matches dashboard)
-        ├── components/     # UI components
-        └── lib/            # API client
+├── apps/
+│   ├── backend/            # FastAPI API + Python worker
+│   │   ├── app/
+│   │   │   ├── core/       # settings / config
+│   │   │   ├── db/         # models, session, pgvector
+│   │   │   ├── ingestion/
+│   │   │   │   └── sources/ # ATS adapters and company finder
+│   │   │   ├── matching/   # filter → embed → LLM rerank
+│   │   │   ├── llm/        # OpenWebUI / Ollama client
+│   │   │   ├── routers/    # API endpoints
+│   │   │   └── schemas/    # Pydantic models
+│   │   ├── migrations/     # Alembic
+│   │   └── tests/
+│   └── frontend/           # Next.js application
+│       └── src/
+│           ├── app/        # pages and layouts
+│           ├── components/ # reusable UI
+│           └── lib/        # API client
+├── deployment/
+│   ├── staging/            # VPS + Docker Compose
+│   └── production/         # k3s + Helm
+├── infra/                  # Keycloak, Postgres, monitoring
+├── tests/                  # end-to-end, smoke, load
+├── docs/
+└── .github/workflows/      # CI/CD
 ```
 
 Directories hold placeholder markers until development begins.
