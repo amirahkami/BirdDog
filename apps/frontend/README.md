@@ -2,7 +2,7 @@
 
 Runs in the `web` container. Talks to the `api` service.
 
-**No application code yet — this is the planned structure only.**
+The foundation includes a status page and an internal proxy to the FastAPI health endpoint.
 
 ## Layout
 

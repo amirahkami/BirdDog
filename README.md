@@ -8,20 +8,21 @@ self-hosted LLM to read each promising job in full and score how well it fits yo
 ## Status
 
 Concept and architecture are finalized and validated in the playground (coverage, accuracy, scale,
-end-to-end). **No application code yet** — the containers are placeholders while we wait for the green light.
+end-to-end). The containerized application foundation is running: Next.js, FastAPI, APScheduler,
+and PostgreSQL with pgvector. Product features are the next development phase.
 
 ## Quick start
 
 ```sh
-cp .env.example .env    # then set OPENWEBUI_API_KEY
-docker compose up
+cp .env.example .env    # then set OPENWEBUI_API_KEY when AI integration begins
+docker compose up --build
 ```
 
 - Web: http://localhost:22300
 - API: http://localhost:22800
 
-> `api`, `web`, and `worker` are placeholder containers for now; `db` (Postgres + pgvector) is fully functional.
-> Everything runs in Docker — nothing executes on the host.
+The status page verifies the frontend, API, and database connection. The worker runs the daily
+APScheduler schedule; ingestion tasks will be added in a later milestone.
 
 ## More
 

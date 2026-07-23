@@ -6,7 +6,7 @@ Pick your field (a "niche"), and BirdDog gathers jobs daily, filters out the noi
 
 ## Status
 
-Concept **and architecture FINALIZED and validated in the playground** (real API tests in Docker) — coverage, accuracy, scale, and end-to-end (Mina & Tom, with links) all checked. **No application code yet — waiting on the green light.**
+Concept **and architecture FINALIZED and validated in the playground** (real API tests in Docker) — coverage, accuracy, scale, and end-to-end (Mina & Tom, with links) all checked. The Dockerized foundation is implemented: Next.js frontend, FastAPI health API, PostgreSQL connectivity, and APScheduler worker.
 
 ## v1 scope
 
@@ -189,19 +189,19 @@ BirdDog/
 └── .github/workflows/      # CI/CD
 ```
 
-Directories hold placeholder markers until development begins.
+Feature directories remain intentionally empty until their development milestones begin.
 
 ## Running
 
 ```sh
-cp .env.example .env    # then set OPENWEBUI_API_KEY
-docker compose up
+cp .env.example .env    # set OPENWEBUI_API_KEY when AI integration begins
+docker compose up --build
 ```
 
 - Web: http://localhost:22300
 - API: http://localhost:22800
 
-> `api`, `web`, and `worker` are placeholder containers until development begins; `db` (Postgres + pgvector) is fully functional.
+The frontend, API, worker, and database run as real development services with Docker health checks.
 
 ## Open questions
 

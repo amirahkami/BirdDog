@@ -3,7 +3,7 @@
 Runs in the `api` container (and shares code with `worker`). Talks to
 Postgres + pgvector and the external self-hosted LLM (OpenWebUI + Ollama).
 
-**No application code yet — this is the planned structure only.**
+The foundation includes the FastAPI health endpoint, PostgreSQL connectivity, and APScheduler worker.
 
 ## Layout
 
@@ -17,6 +17,7 @@ app/
   llm/         OpenWebUI / Ollama client (native /ollama/api/chat, format=json)
   routers/     FastAPI route handlers (criteria, matches, health)
   schemas/     Pydantic request/response models
+  worker/      APScheduler process and scheduled tasks
 migrations/    Alembic database migrations
 tests/         Test suite (run inside the container)
 ```
