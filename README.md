@@ -2,20 +2,24 @@
 
 **AI job-hunt bird dog that sifts every source and retrieves only the right-fit roles.**
 
-Pick your field (a "niche"), and BirdDog gathers jobs daily, filters out the noise, and uses a
-self-hosted LLM to read each promising job in full and score how well it fits you. No endless scrolling.
+BirdDog is an invite-only assistant for jobseekers. It will build shared job pools on demand and
+produce personal matches using each user's desired role, preferences and CV facts.
 
 ## Status
 
-Milestones 1–3 are implemented: the Dockerized application foundation, seven-table data layer,
-and invite-only authentication. Keycloak 26.7 protects the frontend and API. The initial `birddog`
-administrator is the only user; all future users join by admin invitation. Development email is
-captured by Mailpit.
+The Dockerized foundation is implemented: frontend, API, worker, PostgreSQL, Keycloak, Mailpit,
+initial database migration and protected administrator status page.
+
+The current frontend is a temporary foundation UI. Job ingestion, CV upload, role pools and matching
+are not implemented. The complete architecture and frontend direction must first pass Dockerized
+playground tests and receive approval.
 
 ## Quick start
 
-```sh
-cp .env.example .env    # replace every change-me value
+Create `.env` from `.env.example` and replace every `change-me` value. Then start the complete local
+environment with Docker Compose:
+
+```text
 docker compose up --build
 ```
 
@@ -29,6 +33,7 @@ available only in the app's admin dashboard. To invite a user, open the BirdDog 
 then use **Organizations → BirdDog → Members → Invite member**. Mailpit receives the development
 email. Public registration is disabled.
 
-## More
+## Documentation
 
-See [PROJECT.md](PROJECT.md) for the full architecture, data model, pipeline, and validation notes.
+- [System design memory](docs/system-design.md): latest agreed decisions and pending tests.
+- [Project plan](PROJECT.md): current status, boundaries and next phase.
