@@ -2,7 +2,7 @@
 
 Last updated: 2026-07-26
 
-This is the current high-level design agreed during planning. It is not an implementation report. If an older statement in `PROJECT.md` conflicts with this document, this document records the newer decision until the documentation is reconciled.
+This is the approved v1 architecture. It records design decisions, not implementation status.
 
 ## Product boundary
 
@@ -33,14 +33,20 @@ Keep onboarding short. Collect everything required to begin the first search:
 
 Do not force users to enter multiple desired jobs. The desired job is the anchor; the CV provides evidence and may support closely related roles.
 
-Desired seniority is not settled yet and should not be added until tested and discussed.
+Do not ask for desired seniority during onboarding. Job seniority and experience requirements are
+extracted when explicitly stated and used as explained soft matching signals.
 
 ## CV handling
 
 - Accept PDF files up to 25 MB.
+- Accept no more than 50 pages.
+- Validate the extension, MIME type, PDF signature and parser result.
+- Reject encrypted or damaged PDFs.
 - Store the original PDF using the volume-based storage approach.
+- Use private UUID-based filenames and atomic writes.
 - Store file metadata, extracted text and structured facts in PostgreSQL.
 - Python performs text extraction and OCR.
+- OCR must have a bounded execution time.
 - AI converts extracted content into structured facts.
 - German and English CVs are required for v1. French may be added later.
 
@@ -66,15 +72,22 @@ Desired seniority is not settled yet and should not be added until tested and di
 - Cross-skill jobs may link to multiple role pools without duplicating the canonical job.
 - Administrators can approve, pause, resume, rebuild or drop pools.
 
-ESCO is a candidate role taxonomy for connecting related occupations. It is not approved until playground testing demonstrates useful results.
+ESCO is an approved versioned, multilingual reference vocabulary for role candidates and aliases. It
+must not automatically decide a role mapping. Confidence rules and administrator approval control
+pool creation and related-role links. Embeddings may retrieve candidates but may not make the final
+decision.
 
 ## Job pipeline
 
-The intended high-level funnel is:
+The approved high-level funnel is:
 
 ```text
-discover -> collect -> normalize -> deduplicate -> validate
-         -> classify/enrich -> assign to pools -> personalize/match -> serve
+onboarding -> CV extraction/OCR -> evidenced candidate facts
+
+board discovery -> shallow source polling -> cheap pool candidate routing
+-> detail fetch -> normalize source observations -> conservative deduplication
+-> deterministic fact extraction -> AI for unresolved facts
+-> hard eligibility filters -> deterministic scoring -> personal matches
 ```
 
 Important rules:
@@ -85,19 +98,40 @@ Important rules:
 - A new pool may take time to build; the first user waits until useful results are ready.
 - Existing pools serve current matches while refresh work runs in the background.
 
-## Source strategy: provisional until retested
+Source discovery and shallow polling are shared globally. Detail fetching and AI enrichment run only
+for candidates relevant to active pools. Enriched canonical facts are cached and reused; AI is never
+called for every user-job pair.
 
-Earlier Docker playground tests selected an ATS-first strategy:
+## Approved source strategy
 
-- Primary candidates: Personio, Greenhouse, Lever, Ashby, SmartRecruiters, Workable and Recruitee.
-- Secondary remote feeds: WeWorkRemotely, Jobicy and Remotive.
-- Discovery helpers: Common Crawl and, where appropriate, Bundesagentur company names.
-- Previously rejected: Indeed, LinkedIn, StepStone, Xing and production use of Adzuna.
-- Jooble remains untested.
+- Primary direct ATS sources: Personio, Greenhouse, Lever global/EU, Ashby, SmartRecruiters,
+  Recruitee and Workable.
+- Secondary sources with required attribution and terms: Arbeitnow, Jobicy and We Work Remotely.
+- Remotive remains disabled until written permission clarifies its terms.
+- LinkedIn, Indeed, StepStone and Xing are not scraped.
+- EURES and Bundesagentur may be added later through approved partnership/access paths.
+- Common Crawl current and selected historical indexes discover ATS boards. Every board is validated
+  against its official live endpoint before use.
 
-Previous summaries reported clean full descriptions from ATS feeds and high noise from broad/remote feeds. The raw earlier job-source playground artifacts are no longer present, so the entire source strategy must be tested again before final approval.
+Prefer direct employer/ATS facts and application URLs. Preserve attribution and source provenance.
+Source-specific minimum polling intervals and terms override administrator scheduling preferences.
 
-When the same job appears in multiple sources, prefer the direct employer/ATS application URL. Exact source precedence and fallback behavior remain subject to the new tests.
+## Canonical job and data boundaries
+
+Keep these concepts separate in PostgreSQL:
+
+- users, profiles, preferences, CV documents and evidenced CV facts;
+- role concepts, aliases, pools and administrator-approved pool relationships;
+- source adapters, boards, executions and durable work items;
+- source job observations with provenance and first/last-seen state;
+- canonical jobs, multiple job locations and observation links;
+- canonical job-to-pool links;
+- personal matches, explanations, likes and dislikes;
+- AI provider/model capabilities, health and routing state.
+
+Never merge automatically on company and title alone. Stable IDs are authoritative only inside their
+source namespace. Auto-merge only high-confidence identities; uncertain candidates remain separate or
+enter administrator review. One canonical job may belong to several pools.
 
 ## v1 matching direction
 
@@ -109,7 +143,13 @@ Matching combines:
 4. Closely related roles only when evidence supports the relationship.
 5. A factual score and a clear explanation for the user.
 
-The exact scoring formula, role classification, related-role logic and AI quality thresholds require playground benchmarks before implementation.
+Hard filters decide availability, approved pool role, geography, work mode, employment type, explicit
+residence restrictions and explicit legal/professional requirements. Missing facts lower confidence
+instead of silently rejecting a job. Skills, seniority and experience gaps are soft, explained signals,
+so suitable stretch jobs remain visible.
+
+AI extracts evidence-backed facts. Deterministic application policy performs hard filtering and final
+scoring. Every score shown to a user must include understandable reasons.
 
 ## Modular AI inference
 
@@ -118,6 +158,9 @@ The exact scoring formula, role classification, related-role logic and AI qualit
 - Current provider candidates include the existing OpenWebUI/Ollama service and KIConnect.
 - More providers, such as the OpenAI API, can be added later without changing the pipeline.
 - Provider health, model capability and fallback behavior must be visible to the administrator.
+- Each model has task capabilities, benchmark status, latency, safe concurrency and health state.
+- Invalid AI output is rejected. Unsupported or failed facts remain unknown or enter review.
+- KIConnect models share one provider failure domain; OpenWebUI provides the independent initial fallback.
 - Secrets must remain in environment/configuration storage and never in this document or the database as plain text.
 
 ## User match actions
@@ -201,24 +244,21 @@ Additional proven open-source components may be added when they provide clear va
 - Production later: k3s deployment from branch `main`.
 - Only `dev` exists locally at the current development stage.
 
-## Required playground tests before implementation decisions
+## Architecture validation status
 
-1. Retest job-source coverage, completeness, freshness, legal/technical usability and application links.
-2. Test the canonical job, source-record and role-pool storage design.
-3. Test exact and semantic deduplication; do not mix vectors from different embedding models.
-4. Test ESCO for role normalization and related-role discovery.
-5. Test location, remote/hybrid/on-site and employer-restriction detection.
-6. Benchmark CV and job extraction/classification in German and English.
-7. Benchmark both AI providers, different models, failures and processing time.
-8. Simulate demand-driven pools, scheduling, expiry strikes and administrator controls.
-9. Validate the complete funnel using varied jobseeker personas and roles.
-10. Validate onboarding, first-search waiting, matches and admin frontend flows for usability, responsiveness and accessibility.
+The architecture passed Dockerized playground tests and was approved decision by decision on
+2026-07-26. Evidence covered job sources, CV processing, ESCO, geography, workplace classification,
+AI providers, embeddings, deduplication, matching, PostgreSQL workers, freshness, resilience, scale,
+responsive frontend flows and accessibility.
 
-## Architecture approval gate
+Important measured boundaries:
 
-- The overall architecture is not approved merely because it is documented.
-- Every uncertain architectural decision must be tested through Docker in `playground/`.
-- Test results must include evidence, limitations and a clear recommendation.
-- The user reviews and approves decisions one by one.
-- Approved conclusions are copied into this tracked document.
-- Production-feature development begins only after the overall architecture is approved.
+- ESCO and embeddings retrieve candidates but are unsafe as final decision-makers.
+- Structured ATS facts are more reliable than detecting workplace mode from incomplete text.
+- PostgreSQL durable work items with `FOR UPDATE SKIP LOCKED` are sufficient for v1.
+- No evidence currently justifies microservices, Kafka, Elasticsearch, a separate queue, Prometheus or
+  Grafana for v1.
+- Production use of each job source still requires terms/attribution review.
+
+Implementation follows [the implementation plan](implementation-plan.md). Each milestone still needs
+an explicit green light before code changes.

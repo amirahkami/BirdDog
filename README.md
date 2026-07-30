@@ -8,11 +8,12 @@ produce personal matches using each user's desired role, preferences and CV fact
 ## Status
 
 The Dockerized foundation is implemented: frontend, API, worker, PostgreSQL, Keycloak, Mailpit,
-initial database migration and protected administrator status page.
+approved v1 domain schema and protected administrator status page. The protected onboarding API,
+private PDF storage and German/English CV text extraction with OCR fallback are also implemented.
 
-The current frontend is a temporary foundation UI. Job ingestion, CV upload, role pools and matching
-are not implemented. The complete architecture and frontend direction must first pass Dockerized
-playground tests and receive approval.
+The current frontend is a temporary foundation UI; onboarding is currently API-only. Candidate-fact
+structuring, job ingestion, role pools and matching are not implemented. The v1 architecture and
+frontend direction passed Dockerized playground tests and were approved.
 
 ## Quick start
 
@@ -35,5 +36,6 @@ email. Public registration is disabled.
 
 ## Documentation
 
-- [System design memory](docs/system-design.md): latest agreed decisions and pending tests.
+- [System design](docs/system-design.md): approved v1 architecture and operating rules.
 - [Project plan](PROJECT.md): current status, boundaries and next phase.
+- [Implementation plan](docs/implementation-plan.md): approved development order.

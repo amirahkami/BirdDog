@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from sqlalchemy import CheckConstraint, String
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base, TimestampMixin, UUIDPrimaryKeyMixin
 
@@ -24,25 +22,3 @@ class User(UUIDPrimaryKeyMixin, TimestampMixin, Base):
         default="en",
         server_default="en",
     )
-
-    cv: Mapped[CV | None] = relationship(
-        back_populates="user",
-        cascade="all, delete-orphan",
-        passive_deletes=True,
-        uselist=False,
-    )
-    niches: Mapped[list[Niche]] = relationship(
-        back_populates="user",
-        cascade="all, delete-orphan",
-        passive_deletes=True,
-    )
-    cover_letters: Mapped[list[CoverLetter]] = relationship(
-        back_populates="user",
-        cascade="all, delete-orphan",
-        passive_deletes=True,
-    )
-
-
-from app.db.models.cover_letter import CoverLetter
-from app.db.models.cv import CV
-from app.db.models.niche import Niche

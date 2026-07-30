@@ -1,74 +1,75 @@
-from __future__ import annotations
-
 import uuid
 from datetime import datetime
 from decimal import Decimal
+from typing import Any
 
-from sqlalchemy import (
-    Boolean,
-    CheckConstraint,
-    DateTime,
-    ForeignKey,
-    Index,
-    Numeric,
-    String,
-    Text,
-    UniqueConstraint,
-    func,
-)
-from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy import CheckConstraint, DateTime, ForeignKey, Index, Numeric, String, UniqueConstraint, func
+from sqlalchemy.dialects.postgresql import JSONB, UUID
+from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base, TimestampMixin, UUIDPrimaryKeyMixin
 
 
-class Match(UUIDPrimaryKeyMixin, TimestampMixin, Base):
-    __tablename__ = "matches"
+class UserMatch(UUIDPrimaryKeyMixin, TimestampMixin, Base):
+    __tablename__ = "user_matches"
     __table_args__ = (
-        CheckConstraint("fit_score BETWEEN 0 AND 100", name="fit_score"),
+        CheckConstraint("score BETWEEN 0 AND 100", name="score"),
         CheckConstraint(
-            "verdict IN ('strong', 'possible', 'reject')",
-            name="verdict",
+            "tier IN ('strong', 'good', 'stretch', 'blocked', 'review')",
+            name="tier",
         ),
-        UniqueConstraint("niche_id", "job_id", name="uq_matches_niche_job"),
-        Index("ix_matches_niche_score", "niche_id", "fit_score"),
+        CheckConstraint(
+            "eligibility IN ('eligible', 'blocked', 'review')",
+            name="eligibility",
+        ),
+        UniqueConstraint("user_id", "job_id", name="uq_user_matches_user_job"),
+        Index("ix_user_matches_user_score", "user_id", "score"),
     )
 
-    niche_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True),
-        ForeignKey("niches.id", ondelete="CASCADE"),
-        nullable=False,
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
     )
     job_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True),
-        ForeignKey("jobs.id", ondelete="CASCADE"),
-        nullable=False,
+        UUID(as_uuid=True), ForeignKey("canonical_jobs.id", ondelete="CASCADE"), nullable=False
     )
-    fit_score: Mapped[Decimal] = mapped_column(Numeric(5, 2), nullable=False)
-    verdict: Mapped[str] = mapped_column(String(20), nullable=False)
-    why: Mapped[str] = mapped_column(Text, nullable=False)
-    model_name: Mapped[str] = mapped_column(String(255), nullable=False)
-    is_seen: Mapped[bool] = mapped_column(
-        Boolean,
-        nullable=False,
-        default=False,
-        server_default="false",
+    pool_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("role_pools.id", ondelete="CASCADE"), nullable=False
     )
-    is_applied: Mapped[bool] = mapped_column(
-        Boolean,
-        nullable=False,
-        default=False,
-        server_default="false",
+    score: Mapped[Decimal] = mapped_column(Numeric(5, 2), nullable=False)
+    tier: Mapped[str] = mapped_column(String(20), nullable=False)
+    eligibility: Mapped[str] = mapped_column(String(20), nullable=False)
+    reasons: Mapped[list[dict[str, Any]]] = mapped_column(
+        JSONB, nullable=False, default=list, server_default="[]"
     )
-    matched_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
-        nullable=False,
-        server_default=func.now(),
+    missing_facts: Mapped[list[str]] = mapped_column(
+        JSONB, nullable=False, default=list, server_default="[]"
+    )
+    algorithm_version: Mapped[str] = mapped_column(String(50), nullable=False)
+    calculated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now()
     )
 
-    niche: Mapped[Niche] = relationship(back_populates="matches")
-    job: Mapped[Job] = relationship(back_populates="matches")
 
+class UserJobAction(UUIDPrimaryKeyMixin, TimestampMixin, Base):
+    __tablename__ = "user_job_actions"
+    __table_args__ = (
+        CheckConstraint(
+            "preference IS NULL OR preference IN ('liked', 'disliked')",
+            name="preference",
+        ),
+        CheckConstraint(
+            "preference IS NOT NULL OR last_application_opened_at IS NOT NULL",
+            name="has_action",
+        ),
+        UniqueConstraint("user_id", "job_id", name="uq_user_job_actions_user_job"),
+        Index("ix_user_job_actions_user_preference", "user_id", "preference"),
+    )
 
-from app.db.models.job import Job
-from app.db.models.niche import Niche
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    job_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("canonical_jobs.id", ondelete="CASCADE"), nullable=False
+    )
+    preference: Mapped[str | None] = mapped_column(String(20))
+    last_application_opened_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))

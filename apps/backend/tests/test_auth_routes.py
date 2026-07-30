@@ -11,6 +11,7 @@ client = TestClient(app)
 def test_protected_routes_reject_anonymous_requests() -> None:
     assert client.get("/me").status_code == 401
     assert client.get("/admin/status").status_code == 401
+    assert client.get("/onboarding").status_code == 401
 
 
 def test_current_user_response() -> None:

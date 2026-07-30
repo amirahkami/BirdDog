@@ -12,9 +12,14 @@ The reusable application foundation is implemented and runs with Docker Compose:
 - Python worker with an APScheduler placeholder task.
 - Keycloak 26.7 invite-only authentication.
 - Mailpit for development invitation email.
+- Protected three-step onboarding API.
+- Private PDF storage with a 25 MB limit.
+- German/English CV text extraction with bounded OCR fallback.
 
-The frontend is a temporary prototype. The initial seven-table database schema is also provisional.
-Job ingestion, CV processing, shared role pools, matching and user job actions are not implemented.
+The frontend is a temporary foundation. The approved 21-table domain model, reversible migrations,
+durable PostgreSQL work queue and CV extraction worker are implemented. Evidence-backed candidate
+fact structuring is queued for the modular AI milestone. Job ingestion, pool behavior, matching and
+user job actions are not implemented.
 
 ## Product boundary
 
@@ -35,14 +40,17 @@ accept invitation -> sign in -> complete short onboarding -> upload CV
 Onboarding collects one primary desired role, location/radius, accepted work modes, accepted
 full-time/part-time options and a PDF CV up to 25 MB.
 
-## Intended architecture
+## Approved architecture
 
 BirdDog uses demand-driven shared role pools. Comparable users share collected jobs, while matching
 remains personal.
 
 ```text
-discover -> collect -> normalize -> deduplicate -> validate
-         -> classify/enrich -> assign to pools -> personalize/match -> serve
+onboarding -> CV extraction/OCR -> evidenced candidate facts
+
+board discovery -> shallow source polling -> pool candidate routing
+-> detail fetch -> normalize -> conservative deduplication
+-> extract/enrich facts -> hard filters -> deterministic scoring -> matches
 ```
 
 - On-site and hybrid jobs respect the user's radius.
@@ -54,20 +62,20 @@ discover -> collect -> normalize -> deduplicate -> validate
 
 The detailed decisions are maintained in [docs/system-design.md](docs/system-design.md).
 
-## Architecture approval gate
+## Architecture status
 
-The overall architecture is not final. Before production-feature development, Dockerized playground
-tests must validate sources, canonical storage, deduplication, role taxonomy, geography, CV handling,
-AI providers, matching, scheduling, admin controls, end-to-end flow and frontend usability.
+The complete high-level architecture passed Dockerized playground benchmarks and was approved on
+2026-07-26. Domain foundation and onboarding/CV extraction backend work are implemented.
+Implementation follows the ordered milestones in [docs/implementation-plan.md](docs/implementation-plan.md),
+with explicit approval before changes.
 
-Test evidence stays in the ignored `playground/` directory. Approved conclusions are copied into the
-tracked design documentation.
+## Approved source direction
 
-## Source status
-
-Older tests suggested an ATS-first approach using direct employer feeds, with remote feeds only as
-secondary sources. Their raw artifacts are no longer present, so coverage, quality, freshness,
-application links and source precedence will be tested again before approval.
+- Primary: Personio, Greenhouse, Lever, Ashby, SmartRecruiters, Recruitee and Workable.
+- Secondary: Arbeitnow, Jobicy and We Work Remotely, subject to attribution and source terms.
+- Remotive stays disabled until permission is clear.
+- LinkedIn, Indeed, StepStone and Xing are not scraped.
+- Current and historical Common Crawl indexes seed a persistent ATS board registry.
 
 ## Selected technology stack
 

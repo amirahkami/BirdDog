@@ -2,6 +2,7 @@ from fastapi import FastAPI
 
 from app.core.config import get_settings
 from app.routers.auth import router as auth_router
+from app.routers.onboarding import router as onboarding_router
 
 settings = get_settings()
 
@@ -13,3 +14,4 @@ app = FastAPI(
     openapi_url=None,
 )
 app.include_router(auth_router)
+app.include_router(onboarding_router)

@@ -9,8 +9,10 @@ dependencies = [
   "fastapi>=0.116,<1",
   "pgvector>=0.4,<1",
   "psycopg[binary]>=3.2,<4",
+  "pymupdf>=1.26,<2",
   "pyjwt[crypto]>=2.10,<3",
   "pydantic-settings>=2.10,<3",
+  "python-multipart>=0.0.20,<1",
   "sqlalchemy>=2.0,<3",
   "uvicorn[standard]>=0.35,<1",
 ]
@@ -26,6 +28,7 @@ testpaths = ["tests"]
 pythonpath = ["."]
 markers = [
   "integration: tests requiring the Docker Compose database",
+  "external_worker: smoke tests requiring the running Docker Compose worker",
 ]
 
 [tool.uv]

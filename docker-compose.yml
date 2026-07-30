@@ -150,8 +150,12 @@ services:
       KEYCLOAK_AUDIENCE: birddog-api
       KEYCLOAK_INTERNAL_URL: http://keycloak:22080
       MAILPIT_API_URL: http://mailpit:8025
+      CV_STORAGE_PATH: /data/cvs
+      CV_MAX_BYTES: ${CV_MAX_BYTES:-26214400}
+      CV_MAX_PAGES: ${CV_MAX_PAGES:-50}
     volumes:
       - ./apps/backend:/app
+      - cv_data:/data/cvs
     ports:
       - "${API_PORT:-22800}:8000"
     depends_on:
@@ -185,8 +189,15 @@ services:
       OPENWEBUI_API_KEY: ${OPENWEBUI_API_KEY:-}
       LLM_MODEL: ${LLM_MODEL:-qwen2.5:14b-instruct}
       EMBEDDING_MODEL: ${EMBEDDING_MODEL:-bge-m3}
+      CV_STORAGE_PATH: /data/cvs
+      CV_MAX_BYTES: ${CV_MAX_BYTES:-26214400}
+      CV_MAX_PAGES: ${CV_MAX_PAGES:-50}
+      CV_OCR_TIMEOUT_SECONDS: ${CV_OCR_TIMEOUT_SECONDS:-120}
+      CV_OCR_DPI: ${CV_OCR_DPI:-200}
+      CV_WORKER_INTERVAL_SECONDS: ${CV_WORKER_INTERVAL_SECONDS:-2}
     volumes:
       - ./apps/backend:/app
+      - cv_data:/data/cvs
     depends_on:
       db:
         condition: service_healthy
@@ -235,6 +246,7 @@ services:
     restart: unless-stopped
 
 volumes:
+  cv_data:
   db_data:
   frontend_node_modules:
   frontend_next:
