@@ -69,5 +69,11 @@ Phase A complete (2026-08-29), verified in Docker (typecheck, route compile, tok
 - Login left as the Keycloak entry: themed via base tokens, structure unchanged (not restyled).
 - Legacy landing/admin plain CSS removed; only minimal login helper CSS remains.
 
-Phase B: not started. Next step: B0 (API wiring). Also invite a jobseeker test user, since only
-the admin account exists and onboarding is a jobseeker flow.
+Phase B in progress:
+- Prerequisite done (2026-08-30): jobseeker test user `seeker` created in Keycloak (role `jobseeker`).
+- B0 — onboarding API proxy routes (`/api/onboarding`, `.../role`, `.../preferences`, `.../cv`):
+  done 2026-08-30. Verified: typecheck clean, unauthenticated route returns 401.
+- B1–B5: not started. Next: B1 (onboarding gate).
+
+Note: `birddog-web` has direct access grants disabled, so onboarding is tested via the browser
+(log in as `seeker`), not password-grant scripts.
