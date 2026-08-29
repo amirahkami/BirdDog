@@ -35,8 +35,10 @@ No new features; look and reusable parts only.
   colors, type scale, spacing, radius; light/dark/system switch with no flash.
 - A2 — Core components (skeleton set): button (thumb-zone ≥44px), input, card, chip/badge, app shell + nav.
 - A3 — Restyle landing.
-- A4 — Restyle login.
-- A5 — Restyle admin (status page).
+- A4 — Restyle admin (status page).
+
+Login is out of scope: auth is Keycloak throughout, and its hosted login form is acceptable as-is for
+now, so it is not restyled. Design effort focuses on the app's own screens.
 
 ## Phase B — Onboarding + CV frontend (backend already exists)
 
