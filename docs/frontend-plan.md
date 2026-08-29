@@ -76,9 +76,17 @@ Phase B in progress:
 - B1 — onboarding gate (jobseekers with incomplete onboarding routed to `/onboarding`): done 2026-08-30.
 - B2 — Step 1 desired role (functional, saves via `PUT /role`): done 2026-08-30.
 - B5 — wizard shell + stepper: done 2026-08-30.
-- B3 — Step 2 preferences: pending the location→coordinates (geocoding) decision.
+- B3 — Step 2 preferences: NEXT. Geography model decided and validated in the playground
+  (`pgeocode` for coordinates; on-site = radius AND `onsite_countries`; remote = `remote_countries`
+  overlap; two separate country lists). B3 now also includes a backend change: add `onsite_countries`
+  and `remote_countries` (+ migration). UI: a "wow" SVG country picker (react-simple-maps, themed).
+  Open choice before building: build B3 directly, or show a standalone map preview first.
 - B4 — Step 3 CV upload + status: pending (and the "processing" state decision).
 Browser test: sign in as `seeker`.
+
+Geography scope decision: no hard app-level country lock — the app supports a broad (EU) country set
+(job sources are international), and each user defines their own geography (radius + two country
+lists). Commute routing (car/bike/transit via OSRM/MOTIS) is a separate, regional, post-M7 feature.
 
 Note: `birddog-web` has direct access grants disabled, so onboarding is tested via the browser
 (log in as `seeker`), not password-grant scripts.
