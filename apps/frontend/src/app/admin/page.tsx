@@ -1,8 +1,11 @@
 import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
 
 import { authOptions } from "@/lib/auth";
+import { SiteHeader } from "@/components/site-header";
+import { Button } from "@/components/ui/button";
 
 import { AdminStatus } from "./status";
 
@@ -18,12 +21,18 @@ export default async function AdminPage() {
   }
 
   return (
-    <main>
-      <nav className="topbar" aria-label="Admin navigation">
-        <Link href="/">← BirdDog</Link>
-        <strong>Admin dashboard</strong>
-      </nav>
-      <AdminStatus />
-    </main>
+    <>
+      <SiteHeader>
+        <Button asChild variant="ghost" size="sm">
+          <Link href="/">
+            <ArrowLeft aria-hidden /> Home
+          </Link>
+        </Button>
+      </SiteHeader>
+
+      <main className="mx-auto w-full max-w-3xl px-4 pb-24 pt-10">
+        <AdminStatus />
+      </main>
+    </>
   );
 }

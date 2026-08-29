@@ -2,6 +2,8 @@
 
 import { signOut } from "next-auth/react";
 
+import { Button } from "@/components/ui/button";
+
 export function SignOutButton() {
   async function handleSignOut() {
     const response = await fetch("/api/logout", { cache: "no-store" });
@@ -11,8 +13,8 @@ export function SignOutButton() {
   }
 
   return (
-    <button className="link-button" onClick={handleSignOut} type="button">
+    <Button variant="ghost" size="sm" onClick={handleSignOut} type="button">
       Sign out
-    </button>
+    </Button>
   );
 }

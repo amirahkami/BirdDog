@@ -61,8 +61,13 @@ The backend endpoints exist (`GET /onboarding`, `PUT /onboarding/role`, `PUT /on
 
 ## Status
 
-- A1 — design tokens + theming (Tailwind v4, navy/slate tokens light+dark, next-themes,
-  shadcn base + Button): done 2026-08-29, verified in Docker (typecheck, compile, /login 200).
-  Existing pages still use the legacy plain CSS until A3/A4.
-- A2–A5 / Phase B: not started.
-- Next step: A2 (core components).
+Phase A complete (2026-08-29), verified in Docker (typecheck, route compile, token utilities generated):
+- A1 — design tokens + theming: Tailwind v4, navy/slate tokens (light+dark), next-themes, shadcn base + Button.
+- A2 — core components: Card, Badge, ThemeToggle, SiteHeader.
+- A3 — landing restyled: mobile-first, themed, light/dark toggle.
+- A4 — admin status restyled: Card + Badge, themed.
+- Login left as the Keycloak entry: themed via base tokens, structure unchanged (not restyled).
+- Legacy landing/admin plain CSS removed; only minimal login helper CSS remains.
+
+Phase B: not started. Next step: B0 (API wiring). Also invite a jobseeker test user, since only
+the admin account exists and onboarding is a jobseeker flow.
