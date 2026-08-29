@@ -61,5 +61,8 @@ The backend endpoints exist (`GET /onboarding`, `PUT /onboarding/role`, `PUT /on
 
 ## Status
 
-- All steps: not started.
-- Next candidate step: A1, pending an explicit green light.
+- A1 — design tokens + theming (Tailwind v4, navy/slate tokens light+dark, next-themes,
+  shadcn base + Button): done 2026-08-29, verified in Docker (typecheck, compile, /login 200).
+  Existing pages still use the legacy plain CSS until A3/A4.
+- A2–A5 / Phase B: not started.
+- Next step: A2 (core components).
