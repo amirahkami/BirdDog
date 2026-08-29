@@ -1,6 +1,6 @@
 # BirdDog system design memory
 
-Last updated: 2026-07-26
+Last updated: 2026-08-29
 
 This is the approved v1 architecture. It records design decisions, not implementation status.
 
@@ -153,15 +153,33 @@ scoring. Every score shown to a user must include understandable reasons.
 
 ## Modular AI inference
 
-- AI access uses provider adapters behind one internal interface.
-- The administrator chooses the active provider in the admin dashboard.
-- Current provider candidates include the existing OpenWebUI/Ollama service and KIConnect.
-- More providers, such as the OpenAI API, can be added later without changing the pipeline.
-- Provider health, model capability and fallback behavior must be visible to the administrator.
-- Each model has task capabilities, benchmark status, latency, safe concurrency and health state.
+- The confirmed AI engine is KIConnect (Inferenz NRW), an OpenAI-compatible inference API at
+  `https://chat.kiconnect.nrw/api/v1` (verified working 2026-08-29). It is BirdDog's main AI engine for v1.
+- AI access still uses provider adapters behind one internal interface, so additional providers (e.g.
+  the OpenAI API) can be added later without changing the pipeline. The earlier self-hosted
+  OpenWebUI/Ollama plan is dropped; it was never built.
+- The administrator chooses the active model in the admin dashboard.
+- Only API-enabled KIConnect models are usable by the backend. Two catalog models are Frontend-only
+  and excluded: `mistral-small-3.2-24b` and the image model `gpt-image-2`.
+- Usable text models (all support function calling and streaming):
+  - `mistral-small-4-119b-2603` — Germany (Inferenz NRW), 262k context, unlimited rate,
+    temperature-adjustable. Default workhorse for high-volume extraction and enrichment.
+  - `gpt-oss-120b` — Germany (Inferenz NRW), 131k context, unlimited rate.
+  - `gpt-5.5`, `gpt-5.4-mini`, `gpt-5.4-nano`, `gpt-5.3-codex`, `gpt-5.2` — Azure EU, 400k context,
+    rate-limited (15–100 messages/hour). Reserved for low-volume, high-value calls.
+- Model selection is driven by rate limits and data residency: only the German-hosted models are
+  unlimited and keep personal CV data in Germany (preferred for GDPR); the Azure GPT-5.x models are
+  capped and sit in the EU. The per-hour message limits are documented from the KIConnect chat
+  frontend and are not yet confirmed to apply identically to API usage.
+- Embedding models (endpoint `v1/embeddings`) are available if needed: `qwen3-embedding-8b` and
+  `e5-mistral-7b-instruct` (Germany) and `text-embedding-3-small` (Azure EU). Embeddings remain
+  optional; the earlier decision that they are not required for v1 still stands.
+- Provider/model health, capability, latency, safe concurrency and fallback behavior must be visible
+  to the administrator.
 - Invalid AI output is rejected. Unsupported or failed facts remain unknown or enter review.
-- KIConnect models share one provider failure domain; OpenWebUI provides the independent initial fallback.
-- Secrets must remain in environment/configuration storage and never in this document or the database as plain text.
+- The KIConnect API key (`KI_CONNECT_API_KEY`) remains in environment/configuration storage and never
+  in this document or the database as plain text.
+- The official KIConnect model catalog is archived as screenshots in `docs/kiconnect/`.
 
 ## User match actions
 
@@ -227,7 +245,8 @@ and API integration may be retained.
 - Authentication: Keycloak 26.7 with OIDC.
 - Email: Mailpit in development; Mailjet in staging and production.
 - CV processing: PyMuPDF with an OCR fallback.
-- AI: modular provider adapters; OpenWebUI/Ollama and KIConnect initially, with providers such as OpenAI possible later.
+- AI: KIConnect (Inferenz NRW), an OpenAI-compatible inference API, as the main v1 engine behind a
+  modular provider interface; default model `mistral-small-4-119b`, with providers such as OpenAI possible later.
 - File storage: Docker volumes initially; Kubernetes persistent volumes in production.
 - Development and staging: Docker Compose.
 - Production: k3s with Helm.
@@ -259,6 +278,9 @@ Important measured boundaries:
 - No evidence currently justifies microservices, Kafka, Elasticsearch, a separate queue, Prometheus or
   Grafana for v1.
 - Production use of each job source still requires terms/attribution review.
+
+The concrete v1 AI engine was confirmed as KIConnect on 2026-08-29 (see "Modular AI inference"),
+replacing the earlier unbuilt self-hosted OpenWebUI/Ollama plan.
 
 Implementation follows [the implementation plan](implementation-plan.md). Each milestone still needs
 an explicit green light before code changes.

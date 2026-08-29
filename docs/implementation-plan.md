@@ -44,7 +44,15 @@ where provider selection, validation, evidence and fallback behavior are impleme
 
 ## Milestone 6 — modular AI enrichment
 
-- Implement OpenWebUI and OpenAI-compatible provider adapters.
+The confirmed engine is KIConnect (OpenAI-compatible); see "Modular AI inference" in the system design.
+
+- Implement the KIConnect (OpenAI-compatible) provider adapter behind one internal interface, so other
+  providers (e.g. OpenAI) can be added later.
+- Wire configuration to KIConnect: replace the placeholder `OPENWEBUI_*` env vars with `KI_CONNECT_*`
+  in `.env.example`, `docker-compose.yml` and `config.py` (config currently reads no AI keys), and
+  populate `app/llm/` (currently empty).
+- Default to `mistral-small-4-119b` (German-hosted, unlimited, function calling) for high-volume work;
+  reserve the rate-limited GPT-5.x models for low-volume, high-value calls.
 - Add model capability records, administrator selection, health and fallback order.
 - Validate schemas and evidence; keep failed facts unknown or queued.
 - Add local GeoNames resolution and workplace/restriction enrichment.

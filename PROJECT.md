@@ -18,8 +18,10 @@ The reusable application foundation is implemented and runs with Docker Compose:
 
 The frontend is a temporary foundation. The approved 21-table domain model, reversible migrations,
 durable PostgreSQL work queue and CV extraction worker are implemented. Evidence-backed candidate
-fact structuring is queued for the modular AI milestone. Job ingestion, pool behavior, matching and
-user job actions are not implemented.
+fact structuring is queued for the modular AI milestone. BirdDog's AI engine is confirmed as
+KIConnect, an OpenAI-compatible inference API (verified 2026-08-29); it is not yet wired into the
+application (Milestone 6). Job ingestion, pool behavior, matching and user job actions are not
+implemented.
 
 ## Product boundary
 
@@ -85,7 +87,8 @@ with explicit approval before changes.
 - Background work: Python worker with APScheduler.
 - Authentication: Keycloak 26.7 with OIDC.
 - Email: Mailpit in development; Mailjet in staging and production.
-- AI: provider adapters for OpenWebUI/Ollama and KIConnect initially; more providers may follow.
+- AI: KIConnect (Inferenz NRW), an OpenAI-compatible inference API, as the main engine behind modular
+  provider adapters; default model `mistral-small-4-119b`. More providers (e.g. OpenAI) may follow.
 - Testing: pytest and Playwright, always through Docker Compose.
 - Deployment: Docker Compose for development/staging; k3s with Helm for production.
 
