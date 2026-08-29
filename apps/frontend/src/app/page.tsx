@@ -7,6 +7,8 @@ import { authOptions } from "@/lib/auth";
 import { SiteHeader } from "@/components/site-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { fetchOnboarding } from "@/lib/onboarding";
+import { isOnboardingComplete } from "@/lib/onboarding-types";
 
 import { SignOutButton } from "./sign-out-button";
 
@@ -19,6 +21,15 @@ export default async function Home() {
   }
 
   const isAdmin = session.user.roles.includes("admin");
+  const isJobseeker = session.user.roles.includes("jobseeker");
+
+  // Gate: send jobseekers who haven't finished onboarding into the wizard.
+  if (isJobseeker) {
+    const onboarding = await fetchOnboarding();
+    if (onboarding && !isOnboardingComplete(onboarding)) {
+      redirect("/onboarding");
+    }
+  }
 
   return (
     <>

@@ -73,7 +73,12 @@ Phase B in progress:
 - Prerequisite done (2026-08-30): jobseeker test user `seeker` created in Keycloak (role `jobseeker`).
 - B0 — onboarding API proxy routes (`/api/onboarding`, `.../role`, `.../preferences`, `.../cv`):
   done 2026-08-30. Verified: typecheck clean, unauthenticated route returns 401.
-- B1–B5: not started. Next: B1 (onboarding gate).
+- B1 — onboarding gate (jobseekers with incomplete onboarding routed to `/onboarding`): done 2026-08-30.
+- B2 — Step 1 desired role (functional, saves via `PUT /role`): done 2026-08-30.
+- B5 — wizard shell + stepper: done 2026-08-30.
+- B3 — Step 2 preferences: pending the location→coordinates (geocoding) decision.
+- B4 — Step 3 CV upload + status: pending (and the "processing" state decision).
+Browser test: sign in as `seeker`.
 
 Note: `birddog-web` has direct access grants disabled, so onboarding is tested via the browser
 (log in as `seeker`), not password-grant scripts.
