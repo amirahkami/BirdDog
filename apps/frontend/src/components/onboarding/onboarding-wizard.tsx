@@ -7,9 +7,9 @@ import { ArrowRight, Check, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { PreferencesStep } from "@/components/onboarding/preferences-step";
+import { CvStep } from "@/components/onboarding/cv-step";
 import type { OnboardingState, OnboardingSteps } from "@/lib/onboarding-types";
 
 const STEPS = [
@@ -49,7 +49,7 @@ export function OnboardingWizard({ initial }: { initial: OnboardingState }) {
         {current === "preferences" && (
           <PreferencesStep initial={state} onSaved={setState} />
         )}
-        {current === "cv" && <ComingSoon title="CV upload" />}
+        {current === "cv" && <CvStep />}
         {current === "done" && (
           <p className="text-sm text-muted-foreground">Finishing up…</p>
         )}
@@ -179,17 +179,3 @@ function RoleStep({
   );
 }
 
-function ComingSoon({ title }: { title: string }) {
-  return (
-    <Card>
-      <CardContent className="p-5">
-        <p className="text-sm font-semibold text-foreground">
-          {title} — coming next
-        </p>
-        <p className="mt-1 text-sm text-muted-foreground">
-          This step of onboarding is being built.
-        </p>
-      </CardContent>
-    </Card>
-  );
-}

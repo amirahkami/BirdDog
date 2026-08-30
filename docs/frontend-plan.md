@@ -80,7 +80,16 @@ Phase B in progress:
   20260830_04), home conditional on on-site/hybrid, `pgeocode` geocode endpoint. Frontend: preferences
   step (work modes, home country+postal geocode, radius, on-site list, remote SVG map). Country map
   graduated from the removed `/preview` route. Verified: onboarding integration test passes; typecheck.
-- B4 — Step 3 CV upload + status: NEXT (and the "processing" state decision).
+- B4 — Step 3 CV upload + status: DONE 2026-08-31. PDF upload (<=25 MB) via POST /api/onboarding/cv,
+  then a status view that polls GET /api/onboarding for extraction_status. "Processing" decision:
+  after upload it shows extraction progress; full analysis (facts) completes later at M6, so the copy
+  says "matches will be ready soon" and the user proceeds to the dashboard.
+- B5 wizard shell: done earlier.
+
+Phase B is functionally complete (onboarding: gate + role + preferences + CV). Remaining queued item:
+a Settings/Profile page to edit preferences after onboarding (reuses PreferencesStep; backend PUT
+endpoints already allow updates).
+
 Browser test: sign in as `seeker`.
 
 Geography scope decision: no hard app-level country lock — the app supports a broad (EU) country set
