@@ -23,7 +23,7 @@ export function SettingsClient({ initial }: { initial: OnboardingState }) {
 
   return (
     <main className="mx-auto w-full max-w-2xl px-4 pb-24 pt-8 sm:px-6">
-      <h1 className="text-2xl font-bold tracking-tight text-foreground">Settings</h1>
+      <h1 className="t-h1 text-foreground">Settings</h1>
       <p className="mt-2 text-sm text-muted-foreground">
         Update anything below — changes save on their own button.
       </p>
@@ -32,7 +32,7 @@ export function SettingsClient({ initial }: { initial: OnboardingState }) {
         <RoleSection role={state.desired_role ?? ""} onSaved={saved("Role saved")} />
 
         <section>
-          <h2 className="mb-4 text-lg font-semibold text-foreground">Preferences</h2>
+          <h2 className="mb-4 t-h2 text-foreground">Preferences</h2>
           <PreferencesStep
             initial={state}
             onSaved={saved("Preferences saved")}

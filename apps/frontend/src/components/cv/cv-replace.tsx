@@ -83,7 +83,7 @@ export function CvReplace() {
   return (
     <Card>
       <CardContent className="space-y-3 p-5">
-        <h2 className="text-sm font-semibold text-foreground">Your CV</h2>
+        <h2 className="t-h3 text-foreground">Your CV</h2>
 
         {cv === undefined ? (
           <p className="text-sm text-muted-foreground">Loading…</p>

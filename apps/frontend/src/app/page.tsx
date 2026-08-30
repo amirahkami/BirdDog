@@ -53,13 +53,13 @@ export default async function Home() {
       </SiteHeader>
 
       <main className="mx-auto w-full max-w-5xl px-4 pb-24 pt-10 sm:px-6">
-        <p className="mb-3 inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-ai">
+        <p className="mb-3 inline-flex items-center gap-1.5 t-eyebrow text-ai">
           <Sparkles className="size-3.5" aria-hidden /> Private workspace
         </p>
-        <h1 className="max-w-2xl text-balance text-4xl font-bold leading-[1.1] tracking-tight text-foreground sm:text-5xl">
+        <h1 className="max-w-2xl t-display text-foreground">
           The job search that reads before you apply.
         </h1>
-        <p className="mt-5 max-w-prose text-base leading-relaxed text-muted-foreground">
+        <p className="mt-5 max-w-prose t-lead text-muted-foreground">
           Signed in as{" "}
           <span className="font-semibold text-foreground">
             {session.user.username}

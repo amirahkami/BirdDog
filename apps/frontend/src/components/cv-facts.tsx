@@ -82,9 +82,7 @@ export function CvFacts() {
   const header = (
     <div className="flex items-center gap-2">
       <Sparkles className="size-4 text-ai" aria-hidden />
-      <h2 className="text-sm font-semibold text-foreground">
-        What we understood from your CV
-      </h2>
+      <h2 className="t-h3 text-foreground">What we understood from your CV</h2>
       <Badge variant="ai" className="ml-auto">
         AI
       </Badge>
@@ -235,7 +233,7 @@ function Section({
 }) {
   return (
     <div>
-      <p className="mb-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+      <p className="mb-2 flex items-center gap-1.5 t-eyebrow text-muted-foreground">
         {icon}
         {title}
       </p>

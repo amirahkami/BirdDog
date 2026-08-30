@@ -135,9 +135,7 @@ function RoleStep({
 
   return (
     <form onSubmit={submit} noValidate>
-      <h1 className="text-2xl font-bold tracking-tight text-foreground">
-        What role are you after?
-      </h1>
+      <h1 className="t-h1 text-foreground">What role are you after?</h1>
       <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
         In your own words. This is the anchor for your matches — you can refine
         it later.

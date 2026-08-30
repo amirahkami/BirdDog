@@ -30,9 +30,7 @@ export default async function CvPage() {
         </Button>
       </SiteHeader>
       <main className="mx-auto w-full max-w-5xl px-4 pb-24 pt-8 sm:px-6">
-        <h1 className="text-2xl font-bold tracking-tight text-foreground">
-          Your CV
-        </h1>
+        <h1 className="t-h1 text-foreground">Your CV</h1>
         <div className="mt-6 grid gap-4 lg:grid-cols-[320px_minmax(0,1fr)] lg:items-start">
           <CvReplace />
           <CvFacts />

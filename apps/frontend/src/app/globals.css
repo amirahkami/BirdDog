@@ -147,6 +147,50 @@
 }
 
 /* ============================================================
+   Type scale — one consistent system used across every page.
+   Set font size/weight/tracking/leading here; color & spacing
+   stay as Tailwind utilities on the element.
+   ============================================================ */
+@layer components {
+  .t-display {
+    font-size: clamp(2rem, 1.35rem + 2.6vw, 3rem);
+    line-height: 1.08;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    text-wrap: balance;
+  }
+  .t-h1 {
+    font-size: clamp(1.5rem, 1.4rem + 0.5vw, 1.875rem);
+    line-height: 1.2;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+  .t-h2 {
+    font-size: 1.125rem;
+    line-height: 1.35;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .t-h3 {
+    font-size: 0.9375rem;
+    line-height: 1.4;
+    font-weight: 600;
+  }
+  .t-lead {
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+  .t-eyebrow {
+    font-size: 0.75rem;
+    line-height: 1;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+}
+
+/* ============================================================
    Login page (Keycloak entry). Kept minimal and themed; it is not
    part of the redesign — auth uses Keycloak's own form.
    ============================================================ */

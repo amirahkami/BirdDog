@@ -90,7 +90,7 @@ export function CvStep() {
   if (state) {
     return (
       <div className="space-y-6">
-        <h1 className="text-2xl font-bold tracking-tight text-foreground">
+        <h1 className="t-h1 text-foreground">
           {done
             ? "We've read your CV"
             : failed
@@ -150,7 +150,7 @@ export function CvStep() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-foreground">
+        <h1 className="t-h1 text-foreground">
           Upload your CV
         </h1>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">

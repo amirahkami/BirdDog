@@ -43,13 +43,13 @@ export function AdminStatus() {
 
   return (
     <section aria-labelledby="status-title">
-      <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-ai">
+      <p className="mb-2 t-eyebrow text-ai">
         System status
       </p>
       <div className="flex flex-wrap items-center gap-3">
         <h1
           id="status-title"
-          className="text-2xl font-bold tracking-tight text-foreground"
+          className="t-h1 text-foreground"
         >
           Foundation services
         </h1>

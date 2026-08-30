@@ -156,9 +156,7 @@ export function PreferencesStep({
   return (
     <form onSubmit={submit} className="space-y-8">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-foreground">
-          Your preferences
-        </h1>
+        <h1 className="t-h1 text-foreground">Your preferences</h1>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
           These shape which jobs you&apos;ll be matched with.
         </p>
