@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { PreferencesStep } from "@/components/onboarding/preferences-step";
 import type { OnboardingState, OnboardingSteps } from "@/lib/onboarding-types";
 
 const STEPS = [
@@ -45,7 +46,9 @@ export function OnboardingWizard({ initial }: { initial: OnboardingState }) {
         {current === "role" && (
           <RoleStep value={state.desired_role ?? ""} onSaved={setState} />
         )}
-        {current === "preferences" && <ComingSoon title="Preferences" />}
+        {current === "preferences" && (
+          <PreferencesStep initial={state} onSaved={setState} />
+        )}
         {current === "cv" && <ComingSoon title="CV upload" />}
         {current === "done" && (
           <p className="text-sm text-muted-foreground">Finishing up…</p>

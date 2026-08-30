@@ -33,6 +33,8 @@ export type OnboardingState = {
   accepts_remote: boolean;
   accepts_full_time: boolean;
   accepts_part_time: boolean;
+  onsite_countries: string[];
+  remote_countries: string[];
   steps: OnboardingSteps;
   cv: CvStatus | null;
 };
@@ -51,6 +53,8 @@ export const EMPTY_ONBOARDING: OnboardingState = {
   accepts_remote: false,
   accepts_full_time: true,
   accepts_part_time: false,
+  onsite_countries: [],
+  remote_countries: [],
   steps: { role: false, preferences: false, cv: false },
   cv: null,
 };
