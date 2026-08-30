@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { fetchOnboarding } from "@/lib/onboarding";
 import { isOnboardingComplete } from "@/lib/onboarding-types";
+import { CvFacts } from "@/components/cv-facts";
 
 import { SignOutButton } from "./sign-out-button";
 
@@ -62,6 +63,8 @@ export default async function Home() {
           . BirdDog collects focused roles, removes the noise, and explains which
           ones fit your CV — so you can move with confidence.
         </p>
+
+        {isJobseeker ? <CvFacts /> : null}
 
         <Card className="mt-8">
           <CardContent className="p-5">
