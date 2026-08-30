@@ -1,12 +1,11 @@
 "use client";
 
 import * as React from "react";
-import { CheckCircle2, FileText, Loader2 } from "lucide-react";
+import { CheckCircle2, Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent } from "@/components/ui/card";
 import { PreferencesStep } from "@/components/onboarding/preferences-step";
 import type { OnboardingState } from "@/lib/onboarding-types";
 
@@ -40,8 +39,6 @@ export function SettingsClient({ initial }: { initial: OnboardingState }) {
             submitLabel="Save preferences"
           />
         </section>
-
-        <CvSection state={state} onSaved={saved("CV replaced")} />
       </div>
 
       {toast ? (
@@ -104,113 +101,6 @@ function RoleSection({
         />
         <Button type="button" onClick={save} disabled={!valid || saving || value.trim() === role}>
           {saving ? <Loader2 className="animate-spin" /> : "Save"}
-        </Button>
-      </div>
-      {error ? <p className="mt-2 text-sm text-destructive">{error}</p> : null}
-    </section>
-  );
-}
-
-const MAX_BYTES = 25 * 1024 * 1024;
-
-function CvSection({
-  state,
-  onSaved,
-}: {
-  state: OnboardingState;
-  onSaved: (state: OnboardingState) => void;
-}) {
-  const [file, setFile] = React.useState<File | null>(null);
-  const [uploading, setUploading] = React.useState(false);
-  const [error, setError] = React.useState<string | null>(null);
-
-  function pick(candidate: File | null) {
-    setError(null);
-    if (!candidate) {
-      setFile(null);
-      return;
-    }
-    const isPdf =
-      candidate.type === "application/pdf" ||
-      candidate.name.toLowerCase().endsWith(".pdf");
-    if (!isPdf) {
-      setError("Please choose a PDF file.");
-      return;
-    }
-    if (candidate.size > MAX_BYTES) {
-      setError("That file is larger than 25 MB.");
-      return;
-    }
-    setFile(candidate);
-  }
-
-  async function upload() {
-    if (!file || uploading) return;
-    setUploading(true);
-    setError(null);
-    try {
-      const body = new FormData();
-      body.append("file", file);
-      const res = await fetch("/api/onboarding/cv", { method: "POST", body });
-      if (!res.ok) {
-        let message = "Upload failed. Please try again.";
-        try {
-          const detail = (await res.json())?.detail;
-          if (detail?.message) message = detail.message;
-        } catch {
-          // ignore
-        }
-        throw new Error(message);
-      }
-      const data = (await res.json()) as OnboardingState;
-      setFile(null);
-      setUploading(false);
-      onSaved(data);
-    } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "Upload failed.");
-      setUploading(false);
-    }
-  }
-
-  return (
-    <section>
-      <h2 className="mb-4 text-lg font-semibold text-foreground">CV</h2>
-      {state.cv ? (
-        <Card className="mb-3">
-          <CardContent className="flex items-center gap-3 p-4">
-            <FileText className="size-5 shrink-0 text-ai" />
-            <div className="min-w-0">
-              <p className="truncate text-sm font-semibold text-foreground">
-                {state.cv.original_filename}
-              </p>
-              <p className="text-sm text-muted-foreground">
-                {state.cv.extraction_status === "ready"
-                  ? "Processed"
-                  : state.cv.extraction_status === "error"
-                    ? "Couldn't be read"
-                    : "Processing…"}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      ) : (
-        <p className="mb-3 text-sm text-muted-foreground">No CV uploaded yet.</p>
-      )}
-
-      <div className="flex gap-2">
-        <label className="flex flex-1 cursor-pointer items-center gap-2 rounded-lg border border-dashed border-border bg-card px-3 py-2 text-sm text-muted-foreground transition-colors hover:border-ai">
-          <input
-            type="file"
-            accept="application/pdf"
-            className="sr-only"
-            onChange={(e) => pick(e.target.files?.[0] ?? null)}
-          />
-          <span className="truncate">
-            {file ? file.name : "Choose a PDF to replace it"}
-          </span>
-        </label>
-        <Button type="button" onClick={upload} disabled={!file || uploading}>
-          {uploading ? <Loader2 className="animate-spin" /> : "Replace"}
         </Button>
       </div>
       {error ? <p className="mt-2 text-sm text-destructive">{error}</p> : null}
