@@ -49,6 +49,12 @@ const PRESETS = [
 export function CountryPicker() {
   const [selected, setSelected] = React.useState<Set<string>>(new Set());
   const [query, setQuery] = React.useState("");
+  // Only enable hover styling on devices with a real hovering pointer (mouse),
+  // so touch taps don't leave a "stuck" hover highlight.
+  const [canHover, setCanHover] = React.useState(false);
+  React.useEffect(() => {
+    setCanHover(window.matchMedia("(hover: hover)").matches);
+  }, []);
 
   const toggle = (id: string) =>
     setSelected((prev) => {
@@ -120,13 +126,20 @@ export function CountryPicker() {
                           outline: "none",
                           transition: "fill 150ms ease",
                         },
-                        hover: {
-                          fill: sel ? "var(--ai)" : "var(--map-hover)",
-                          stroke: "var(--ai)",
-                          strokeWidth: 1,
-                          outline: "none",
-                          cursor: "pointer",
-                        },
+                        hover: canHover
+                          ? {
+                              fill: sel ? "var(--ai)" : "var(--map-hover)",
+                              stroke: "var(--ai)",
+                              strokeWidth: 1,
+                              outline: "none",
+                              cursor: "pointer",
+                            }
+                          : {
+                              fill: sel ? "var(--ai)" : "var(--map-land)",
+                              stroke: "var(--map-border)",
+                              strokeWidth: 0.5,
+                              outline: "none",
+                            },
                         pressed: { fill: "var(--ai)", outline: "none" },
                       }}
                     />
