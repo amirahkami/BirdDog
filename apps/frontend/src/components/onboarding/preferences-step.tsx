@@ -26,10 +26,12 @@ export function PreferencesStep({
   initial,
   onSaved,
   submitLabel,
+  hideHeader,
 }: {
   initial: OnboardingState;
   onSaved: (state: OnboardingState) => void;
   submitLabel?: string;
+  hideHeader?: boolean;
 }) {
   const [onsite, setOnsite] = React.useState(initial.accepts_onsite);
   const [hybrid, setHybrid] = React.useState(initial.accepts_hybrid);
@@ -155,12 +157,14 @@ export function PreferencesStep({
 
   return (
     <form onSubmit={submit} className="space-y-8">
-      <div>
-        <h1 className="t-h1 text-foreground">Your preferences</h1>
-        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-          These shape which jobs you&apos;ll be matched with.
-        </p>
-      </div>
+      {hideHeader ? null : (
+        <div>
+          <h1 className="t-h1 text-foreground">Your preferences</h1>
+          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+            These shape which jobs you&apos;ll be matched with.
+          </p>
+        </div>
+      )}
 
       <Section label="Work mode">
         <div className="flex flex-wrap gap-2">

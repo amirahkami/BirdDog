@@ -5,7 +5,6 @@ import { CheckCircle2, Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { PreferencesStep } from "@/components/onboarding/preferences-step";
 import type { OnboardingState } from "@/lib/onboarding-types";
 
@@ -22,23 +21,31 @@ export function SettingsClient({ initial }: { initial: OnboardingState }) {
   };
 
   return (
-    <main className="mx-auto w-full max-w-2xl px-4 pb-24 pt-8 sm:px-6">
+    <main className="mx-auto w-full max-w-5xl px-4 pb-24 pt-8 sm:px-6">
       <h1 className="t-h1 text-foreground">Settings</h1>
       <p className="mt-2 text-sm text-muted-foreground">
         Update anything below — changes save on their own button.
       </p>
 
-      <div className="mt-8 space-y-12">
-        <RoleSection role={state.desired_role ?? ""} onSaved={saved("Role saved")} />
+      <div className="mt-4 divide-y divide-border">
+        <SettingsRow
+          title="Desired role"
+          description="The role your matches are anchored on."
+        >
+          <RoleFields role={state.desired_role ?? ""} onSaved={saved("Role saved")} />
+        </SettingsRow>
 
-        <section>
-          <h2 className="mb-4 t-h2 text-foreground">Preferences</h2>
+        <SettingsRow
+          title="Preferences"
+          description="These shape which jobs you'll be matched with — work mode, location, and countries."
+        >
           <PreferencesStep
             initial={state}
             onSaved={saved("Preferences saved")}
             submitLabel="Save preferences"
+            hideHeader
           />
-        </section>
+        </SettingsRow>
       </div>
 
       {toast ? (
@@ -53,7 +60,29 @@ export function SettingsClient({ initial }: { initial: OnboardingState }) {
   );
 }
 
-function RoleSection({
+function SettingsRow({
+  title,
+  description,
+  children,
+}: {
+  title: string;
+  description: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="grid gap-x-10 gap-y-4 py-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
+      <div>
+        <h2 className="t-h2 text-foreground">{title}</h2>
+        <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+          {description}
+        </p>
+      </div>
+      <div className="min-w-0">{children}</div>
+    </section>
+  );
+}
+
+function RoleFields({
   role,
   onSaved,
 }: {
@@ -86,24 +115,24 @@ function RoleSection({
   }
 
   return (
-    <section>
-      <h2 className="mb-4 text-lg font-semibold text-foreground">Desired role</h2>
-      <Label htmlFor="settings-role" className="mb-2 block">
-        The role your matches are anchored on
-      </Label>
+    <div>
       <div className="flex gap-2">
         <Input
-          id="settings-role"
           value={value}
           onChange={(e) => setValue(e.target.value)}
           maxLength={255}
+          aria-label="Desired role"
           className="flex-1"
         />
-        <Button type="button" onClick={save} disabled={!valid || saving || value.trim() === role}>
+        <Button
+          type="button"
+          onClick={save}
+          disabled={!valid || saving || value.trim() === role}
+        >
           {saving ? <Loader2 className="animate-spin" /> : "Save"}
         </Button>
       </div>
       {error ? <p className="mt-2 text-sm text-destructive">{error}</p> : null}
-    </section>
+    </div>
   );
 }
