@@ -67,6 +67,8 @@ def test_complete_onboarding_and_cv_extraction(monkeypatch, tmp_path: Path) -> N
         preferences = client.put("/onboarding/preferences", json=_preferences())
         assert preferences.status_code == 200
         assert preferences.json()["steps"]["preferences"] is True
+        assert preferences.json()["onsite_countries"] == ["DE"]
+        assert preferences.json()["remote_countries"] == ["DE", "AT"]
 
         invalid_upload = client.post(
             "/onboarding/cv",
@@ -141,6 +143,8 @@ def _preferences() -> dict:
         "accepts_remote": True,
         "accepts_full_time": True,
         "accepts_part_time": False,
+        "onsite_countries": ["de"],
+        "remote_countries": ["de", "at"],
     }
 
 

@@ -3,7 +3,7 @@ from datetime import datetime
 from decimal import Decimal
 
 from sqlalchemy import Boolean, CheckConstraint, DateTime, ForeignKey, Numeric, SmallInteger, String
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import ARRAY, UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base, TimestampMixin, UUIDPrimaryKeyMixin
@@ -41,12 +41,21 @@ class UserProfile(UUIDPrimaryKeyMixin, TimestampMixin, Base):
             name="ready_employment_type",
         ),
         CheckConstraint(
-            "onboarding_status <> 'ready' OR (desired_role_text IS NOT NULL AND btrim(desired_role_text) <> '' AND home_country_code IS NOT NULL AND home_latitude IS NOT NULL)",
+            "onboarding_status <> 'ready' OR (desired_role_text IS NOT NULL AND btrim(desired_role_text) <> '' "
+            "AND (NOT (accepts_onsite OR accepts_hybrid) OR (home_country_code IS NOT NULL AND home_latitude IS NOT NULL)))",
             name="ready_identity",
         ),
         CheckConstraint(
             "onboarding_status <> 'ready' OR NOT (accepts_onsite OR accepts_hybrid) OR travel_radius_km IS NOT NULL",
             name="ready_radius",
+        ),
+        CheckConstraint(
+            "onboarding_status <> 'ready' OR NOT (accepts_onsite OR accepts_hybrid) OR array_length(onsite_countries, 1) >= 1",
+            name="ready_onsite_countries",
+        ),
+        CheckConstraint(
+            "onboarding_status <> 'ready' OR NOT accepts_remote OR array_length(remote_countries, 1) >= 1",
+            name="ready_remote_countries",
         ),
     )
 
@@ -77,6 +86,12 @@ class UserProfile(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     )
     accepts_part_time: Mapped[bool] = mapped_column(
         Boolean, nullable=False, default=False, server_default="false"
+    )
+    onsite_countries: Mapped[list[str]] = mapped_column(
+        ARRAY(String(2)), nullable=False, server_default="{}"
+    )
+    remote_countries: Mapped[list[str]] = mapped_column(
+        ARRAY(String(2)), nullable=False, server_default="{}"
     )
     onboarding_status: Mapped[str] = mapped_column(
         String(20), nullable=False, default="incomplete", server_default="incomplete"

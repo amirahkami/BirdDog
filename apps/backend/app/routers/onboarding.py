@@ -158,18 +158,24 @@ def _current_cv(session: Session, user_id) -> CVDocument | None:
 
 
 def _profile_preferences_complete(profile: UserProfile) -> bool:
-    return bool(
-        profile.desired_role_text
-        and profile.home_country_code
-        and profile.home_latitude is not None
-        and profile.home_longitude is not None
-        and (profile.accepts_onsite or profile.accepts_hybrid or profile.accepts_remote)
-        and (profile.accepts_full_time or profile.accepts_part_time)
-        and (
-            not (profile.accepts_onsite or profile.accepts_hybrid)
-            or profile.travel_radius_km is not None
-        )
-    )
+    if not profile.desired_role_text:
+        return False
+    if not (profile.accepts_onsite or profile.accepts_hybrid or profile.accepts_remote):
+        return False
+    if not (profile.accepts_full_time or profile.accepts_part_time):
+        return False
+    if profile.accepts_onsite or profile.accepts_hybrid:
+        if not (
+            profile.home_country_code
+            and profile.home_latitude is not None
+            and profile.home_longitude is not None
+            and profile.travel_radius_km is not None
+            and profile.onsite_countries
+        ):
+            return False
+    if profile.accepts_remote and not profile.remote_countries:
+        return False
+    return True
 
 
 def _derive_status(profile: UserProfile, document: CVDocument | None) -> str:
@@ -201,6 +207,8 @@ def _response(
         accepts_remote=profile.accepts_remote if profile else False,
         accepts_full_time=profile.accepts_full_time if profile else True,
         accepts_part_time=profile.accepts_part_time if profile else False,
+        onsite_countries=list(profile.onsite_countries) if profile else [],
+        remote_countries=list(profile.remote_countries) if profile else [],
         steps=OnboardingStepsResponse(
             role=bool(profile and profile.desired_role_text),
             preferences=preferences_complete,
