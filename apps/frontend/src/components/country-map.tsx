@@ -168,7 +168,10 @@ export function CountryPicker() {
                   <li key={c.id}>
                     <button
                       type="button"
-                      onClick={() => toggle(c.id)}
+                      onClick={() => {
+                        toggle(c.id);
+                        setQuery("");
+                      }}
                       className={cn(
                         "flex w-full items-center justify-between px-3 py-2 text-sm transition-colors",
                         sel ? "bg-ai-soft font-semibold text-ai" : "hover:bg-accent"
