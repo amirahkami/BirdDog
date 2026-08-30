@@ -63,7 +63,7 @@ export function AdminStatus() {
         Visible only to BirdDog administrators.
       </p>
 
-      <div className="mt-6 grid gap-2.5">
+      <div className="mt-6 grid gap-2.5 sm:grid-cols-2">
         <StatusRow label="Frontend" state="online" />
         {Object.entries(labels).map(([key, label]) => (
           <StatusRow

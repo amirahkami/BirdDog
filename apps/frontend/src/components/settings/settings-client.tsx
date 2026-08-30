@@ -22,7 +22,7 @@ export function SettingsClient({ initial }: { initial: OnboardingState }) {
   };
 
   return (
-    <main className="mx-auto w-full max-w-md px-4 pb-24 pt-8">
+    <main className="mx-auto w-full max-w-2xl px-4 pb-24 pt-8 sm:px-6">
       <h1 className="text-2xl font-bold tracking-tight text-foreground">Settings</h1>
       <p className="mt-2 text-sm text-muted-foreground">
         Update anything below — changes save on their own button.

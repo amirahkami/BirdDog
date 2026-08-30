@@ -39,7 +39,7 @@ export function OnboardingWizard({ initial }: { initial: OnboardingState }) {
   }, [current, router]);
 
   return (
-    <div className="mx-auto w-full max-w-md px-4 pb-24 pt-8">
+    <div className="mx-auto w-full max-w-2xl px-4 pb-24 pt-8 sm:px-6">
       <Stepper current={current} steps={state.steps} />
 
       <div className="mt-8">

@@ -93,7 +93,7 @@ export function CvFacts() {
 
   if (pending) {
     return (
-      <Card className="mt-8">
+      <Card>
         <CardContent className="space-y-3 p-5">
           {header}
           <p className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -106,7 +106,7 @@ export function CvFacts() {
 
   if (status === "error") {
     return (
-      <Card className="mt-8">
+      <Card>
         <CardContent className="space-y-2 p-5">
           {header}
           <p className="text-sm text-muted-foreground">
@@ -122,7 +122,7 @@ export function CvFacts() {
   const shownSkills = showAll ? skills : skills.slice(0, SKILL_CAP);
 
   return (
-    <Card className="mt-8">
+    <Card>
       <CardContent className="space-y-5 p-5">
         {header}
 

@@ -29,12 +29,14 @@ export default async function CvPage() {
           </Link>
         </Button>
       </SiteHeader>
-      <main className="mx-auto w-full max-w-md space-y-4 px-4 pb-24 pt-8">
+      <main className="mx-auto w-full max-w-5xl px-4 pb-24 pt-8 sm:px-6">
         <h1 className="text-2xl font-bold tracking-tight text-foreground">
           Your CV
         </h1>
-        <CvReplace />
-        <CvFacts />
+        <div className="mt-6 grid gap-4 lg:grid-cols-[320px_minmax(0,1fr)] lg:items-start">
+          <CvReplace />
+          <CvFacts />
+        </div>
       </main>
     </>
   );
