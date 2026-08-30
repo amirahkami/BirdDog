@@ -76,12 +76,11 @@ Phase B in progress:
 - B1 — onboarding gate (jobseekers with incomplete onboarding routed to `/onboarding`): done 2026-08-30.
 - B2 — Step 1 desired role (functional, saves via `PUT /role`): done 2026-08-30.
 - B5 — wizard shell + stepper: done 2026-08-30.
-- B3 — Step 2 preferences: NEXT. Geography model decided and validated in the playground
-  (`pgeocode` for coordinates; on-site = radius AND `onsite_countries`; remote = `remote_countries`
-  overlap; two separate country lists). B3 now also includes a backend change: add `onsite_countries`
-  and `remote_countries` (+ migration). UI: a "wow" SVG country picker (react-simple-maps, themed).
-  Open choice before building: build B3 directly, or show a standalone map preview first.
-- B4 — Step 3 CV upload + status: pending (and the "processing" state decision).
+- B3 — Step 2 preferences: DONE 2026-08-30. Backend: `onsite_countries`/`remote_countries` (+ migration
+  20260830_04), home conditional on on-site/hybrid, `pgeocode` geocode endpoint. Frontend: preferences
+  step (work modes, home country+postal geocode, radius, on-site list, remote SVG map). Country map
+  graduated from the removed `/preview` route. Verified: onboarding integration test passes; typecheck.
+- B4 — Step 3 CV upload + status: NEXT (and the "processing" state decision).
 Browser test: sign in as `seeker`.
 
 Geography scope decision: no hard app-level country lock — the app supports a broad (EU) country set
