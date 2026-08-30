@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { FileText, Loader2 } from "lucide-react";
+import { ExternalLink, FileText, Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -106,6 +106,18 @@ export function CvReplace() {
         ) : (
           <p className="text-sm text-muted-foreground">No CV uploaded yet.</p>
         )}
+
+        {cv ? (
+          <Button asChild variant="outline" size="sm" className="w-full">
+            <a
+              href="/api/onboarding/cv/file"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <ExternalLink className="size-4" /> View CV
+            </a>
+          </Button>
+        ) : null}
 
         <div className="flex gap-2 pt-1">
           <label className="flex flex-1 cursor-pointer items-center gap-2 rounded-lg border border-dashed border-border bg-card px-3 py-2 text-sm text-muted-foreground transition-colors hover:border-ai">

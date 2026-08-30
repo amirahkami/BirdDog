@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
+from fastapi import APIRouter, Depends, File, HTTPException, Response, UploadFile, status
 from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 
@@ -55,6 +55,27 @@ def get_facts(user: AuthenticatedUser, session: SessionDependency) -> FactsRespo
         facts_schema_version=document.facts_schema_version,
         facts=document.facts or {},
         evidence=document.evidence or {},
+    )
+
+
+@router.get("/cv/file")
+def get_cv_file(user: AuthenticatedUser, session: SessionDependency) -> Response:
+    document = _current_cv(session, user.id)
+    if document is None:
+        raise HTTPException(status_code=404, detail="No CV on file")
+    storage = CVStorage(
+        settings.cv_storage_path,
+        maximum_bytes=settings.cv_max_bytes,
+        maximum_pages=settings.cv_max_pages,
+    )
+    try:
+        data = storage.resolve(document.storage_key).read_bytes()
+    except OSError as error:
+        raise HTTPException(status_code=404, detail="CV file not found") from error
+    return Response(
+        content=data,
+        media_type="application/pdf",
+        headers={"Content-Disposition": 'inline; filename="cv.pdf"'},
     )
 
 
