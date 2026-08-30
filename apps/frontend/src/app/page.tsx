@@ -1,12 +1,11 @@
 import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
-import { Sparkles } from "lucide-react";
+import { Radar } from "lucide-react";
 
 import { authOptions } from "@/lib/auth";
 import { SiteHeader } from "@/components/site-header";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { fetchOnboarding } from "@/lib/onboarding";
 import { isOnboardingComplete } from "@/lib/onboarding-types";
 
@@ -52,33 +51,36 @@ export default async function Home() {
         <SignOutButton />
       </SiteHeader>
 
-      <main className="mx-auto w-full max-w-5xl px-4 pb-24 pt-10 sm:px-6">
-        <p className="mb-3 inline-flex items-center gap-1.5 t-eyebrow text-ai">
-          <Sparkles className="size-3.5" aria-hidden /> Private workspace
-        </p>
-        <h1 className="max-w-2xl t-display text-foreground">
-          The job search that reads before you apply.
-        </h1>
-        <p className="mt-5 max-w-prose t-lead text-muted-foreground">
-          Signed in as{" "}
-          <span className="font-semibold text-foreground">
-            {session.user.username}
-          </span>
-          . BirdDog collects focused roles, removes the noise, and explains which
-          ones fit your CV — so you can move with confidence.
-        </p>
+      <main className="mx-auto flex min-h-[calc(100dvh-3.5rem)] w-full max-w-2xl items-center justify-center px-4 pb-16 sm:px-6">
+        <div className="w-full text-center">
+          <div className="mx-auto grid size-14 place-items-center rounded-2xl bg-ai-soft text-ai">
+            <Radar className="size-7" aria-hidden />
+          </div>
 
-        <Card className="mt-8 max-w-2xl">
-          <CardContent className="p-5">
-            <p className="text-sm font-semibold text-foreground">
-              Your matches aren&apos;t ready yet
-            </p>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Once onboarding and pool building are complete, your personalized
-              matches will appear here — each one with a clear reason it fits.
-            </p>
-          </CardContent>
-        </Card>
+          <p className="mt-6 t-eyebrow text-ai">Private workspace</p>
+          <h1 className="mt-2 t-h1 text-foreground">
+            Your matches are on the way
+          </h1>
+          <p className="mx-auto mt-3 max-w-md t-lead text-muted-foreground">
+            Signed in as{" "}
+            <span className="font-semibold text-foreground">
+              {session.user.username}
+            </span>
+            . BirdDog collects focused roles and explains which ones fit your CV —
+            each match with a clear reason. They&apos;ll appear here.
+          </p>
+
+          {isJobseeker ? (
+            <div className="mt-7 flex flex-wrap justify-center gap-2">
+              <Button asChild variant="secondary">
+                <Link href="/cv">View your CV</Link>
+              </Button>
+              <Button asChild variant="ghost">
+                <Link href="/settings">Edit preferences</Link>
+              </Button>
+            </div>
+          ) : null}
+        </div>
       </main>
     </>
   );
