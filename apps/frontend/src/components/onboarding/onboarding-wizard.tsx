@@ -86,7 +86,7 @@ function Stepper({
             </span>
             <span
               className={cn(
-                "text-xs font-medium",
+                "hidden text-xs font-medium sm:inline",
                 active || done ? "text-foreground" : "text-muted-foreground"
               )}
             >

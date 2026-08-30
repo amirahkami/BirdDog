@@ -37,7 +37,7 @@ export function SiteHeader({
           <span className="grid size-7 place-items-center rounded-lg bg-primary text-primary-foreground">
             <BirdMark />
           </span>
-          <span>
+          <span className="hidden sm:inline">
             Bird<span className="text-ai">Dog</span>
           </span>
         </Link>
