@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Annotated, Literal
+from typing import Annotated, Any, Literal
 from uuid import UUID
 
 from pydantic import BaseModel, Field, StringConstraints, field_validator, model_validator
@@ -92,6 +92,13 @@ class PreferencesStepRequest(BaseModel):
             raise ValueError("select at least one remote country")
 
         return self
+
+
+class FactsResponse(BaseModel):
+    facts_status: Literal["pending", "queued", "ready", "review", "error"] | None
+    facts_schema_version: str | None
+    facts: dict[str, Any]
+    evidence: dict[str, Any]
 
 
 class GeocodeResult(BaseModel):

@@ -15,6 +15,7 @@ from app.repositories import WorkItemRepository
 from app.geocoding import geocode_postal
 from app.schemas.onboarding import (
     CVStatusResponse,
+    FactsResponse,
     GeocodeResult,
     OnboardingResponse,
     OnboardingStepsResponse,
@@ -40,6 +41,21 @@ def geocode(country_code: str, postal_code: str, user: AuthenticatedUser) -> Geo
     if result is None:
         raise HTTPException(status_code=404, detail="Location not found")
     return GeocodeResult(**result)
+
+
+@router.get("/facts", response_model=FactsResponse)
+def get_facts(user: AuthenticatedUser, session: SessionDependency) -> FactsResponse:
+    document = _current_cv(session, user.id)
+    if document is None:
+        return FactsResponse(
+            facts_status=None, facts_schema_version=None, facts={}, evidence={}
+        )
+    return FactsResponse(
+        facts_status=document.facts_status,
+        facts_schema_version=document.facts_schema_version,
+        facts=document.facts or {},
+        evidence=document.evidence or {},
+    )
 
 
 @router.get("", response_model=OnboardingResponse)

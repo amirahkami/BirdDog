@@ -141,10 +141,9 @@ services:
     environment:
       DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-birddog}:${POSTGRES_PASSWORD:-birddog}@db:5432/${POSTGRES_DB:-birddog}
       APP_ENV: development
-      OPENWEBUI_BASE_URL: ${OPENWEBUI_BASE_URL:-}
-      OPENWEBUI_API_KEY: ${OPENWEBUI_API_KEY:-}
-      LLM_MODEL: ${LLM_MODEL:-qwen2.5:14b-instruct}
-      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-bge-m3}
+      KI_CONNECT_BASE_URL: ${KI_CONNECT_BASE_URL:-https://chat.kiconnect.nrw/api/v1}
+      KI_CONNECT_API_KEY: ${KI_CONNECT_API_KEY:-}
+      KI_CONNECT_MODEL: ${KI_CONNECT_MODEL:-ki.inferenz.nrw-mistralai-mistral-small-4-119b-2603}
       KEYCLOAK_ISSUER: http://auth.localhost:${KEYCLOAK_PORT:-22080}/realms/birddog
       KEYCLOAK_JWKS_URL: http://keycloak:22080/realms/birddog/protocol/openid-connect/certs
       KEYCLOAK_AUDIENCE: birddog-api
@@ -185,10 +184,9 @@ services:
       APP_ENV: development
       SCHEDULE_CRON: ${SCHEDULE_CRON:-0 17 * * *}
       TIMEZONE: ${TIMEZONE:-Europe/Berlin}
-      OPENWEBUI_BASE_URL: ${OPENWEBUI_BASE_URL:-}
-      OPENWEBUI_API_KEY: ${OPENWEBUI_API_KEY:-}
-      LLM_MODEL: ${LLM_MODEL:-qwen2.5:14b-instruct}
-      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-bge-m3}
+      KI_CONNECT_BASE_URL: ${KI_CONNECT_BASE_URL:-https://chat.kiconnect.nrw/api/v1}
+      KI_CONNECT_API_KEY: ${KI_CONNECT_API_KEY:-}
+      KI_CONNECT_MODEL: ${KI_CONNECT_MODEL:-ki.inferenz.nrw-mistralai-mistral-small-4-119b-2603}
       CV_STORAGE_PATH: /data/cvs
       CV_MAX_BYTES: ${CV_MAX_BYTES:-26214400}
       CV_MAX_PAGES: ${CV_MAX_PAGES:-50}
