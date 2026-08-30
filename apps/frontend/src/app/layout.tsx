@@ -1,9 +1,16 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { Manrope } from "next/font/google";
 
 import { ThemeProvider } from "@/components/theme-provider";
 
 import "./globals.css";
+
+const manrope = Manrope({
+  subsets: ["latin"],
+  variable: "--font-manrope",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "BirdDog",
@@ -12,7 +19,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className={manrope.variable} suppressHydrationWarning>
       <body>
         <ThemeProvider
           attribute="class"
