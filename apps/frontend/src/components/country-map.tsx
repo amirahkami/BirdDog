@@ -3,7 +3,7 @@
 import * as React from "react";
 import { ComposableMap, Geographies, Geography } from "react-simple-maps";
 import worldData from "world-atlas/countries-50m.json";
-import { Check, X } from "lucide-react";
+import { Check, Search, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +12,9 @@ import { cn } from "@/lib/utils";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Geo = any;
 type Country = { id: string; name: string };
+
+// Normalize a geo id ("040" -> "40") so it matches our un-padded ISO numeric ids.
+const norm = (raw: string | number) => String(Number(raw));
 
 const EU: Country[] = [
   { id: "40", name: "Austria" }, { id: "56", name: "Belgium" }, { id: "100", name: "Bulgaria" },
@@ -37,7 +40,7 @@ const NAME = new Map(ALL.map((c) => [c.id, c.name]));
 
 const ids = (list: Country[]) => list.map((c) => c.id);
 const PRESETS = [
-  { label: "EU + EEA + CH", ids: ids([...EU, ...EEA_EXTRA, CH]), primary: true, hint: "where an EU citizen works without a permit" },
+  { label: "EU + EEA + CH", ids: ids([...EU, ...EEA_EXTRA, CH]), primary: true },
   { label: "EU", ids: ids(EU) },
   { label: "EEA", ids: ids([...EU, ...EEA_EXTRA]) },
   { label: "All", ids: ids(ALL) },
@@ -59,36 +62,34 @@ export function CountryPicker() {
   const clear = () => setSelected(new Set());
 
   const q = query.trim().toLowerCase();
-  const filtered = q ? ALL.filter((c) => c.name.toLowerCase().includes(q)) : ALL;
+  const results = q ? ALL.filter((c) => c.name.toLowerCase().includes(q)) : [];
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       {/* Presets */}
-      <div>
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            Quick pick
-          </span>
-          {PRESETS.map((p) => (
-            <Button
-              key={p.label}
-              type="button"
-              size="sm"
-              variant={p.primary ? "default" : "secondary"}
-              onClick={() => addAll(p.ids)}
-            >
-              {p.label}
-            </Button>
-          ))}
-          <Button type="button" size="sm" variant="ghost" onClick={clear} disabled={selected.size === 0}>
-            Clear all
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          Quick pick
+        </span>
+        {PRESETS.map((p) => (
+          <Button
+            key={p.label}
+            type="button"
+            size="sm"
+            variant={p.primary ? "default" : "secondary"}
+            onClick={() => addAll(p.ids)}
+          >
+            {p.label}
           </Button>
-        </div>
-        <p className="mt-2 text-xs text-muted-foreground">
-          Tip: <span className="font-medium text-foreground">EU + EEA + CH</span> is where an EU
-          citizen can work without a permit.
-        </p>
+        ))}
+        <Button type="button" size="sm" variant="ghost" onClick={clear} disabled={selected.size === 0}>
+          Clear all
+        </Button>
       </div>
+      <p className="-mt-1 text-xs text-muted-foreground">
+        Tip: <span className="font-medium text-foreground">EU + EEA + CH</span> is where an EU
+        citizen can work without a permit.
+      </p>
 
       {/* Map */}
       <div className="overflow-hidden rounded-xl border border-border bg-card">
@@ -102,9 +103,9 @@ export function CountryPicker() {
           <Geographies geography={worldData as Geo}>
             {({ geographies }: { geographies: Geo[] }) =>
               geographies
-                .filter((geo) => NAME.has(String(geo.id)))
+                .filter((geo) => NAME.has(norm(geo.id)))
                 .map((geo) => {
-                  const id = String(geo.id);
+                  const id = norm(geo.id);
                   const sel = selected.has(id);
                   return (
                     <Geography
@@ -136,55 +137,64 @@ export function CountryPicker() {
         </ComposableMap>
       </div>
 
-      {/* Searchable list — reliable selection incl. tiny countries */}
-      <div className="rounded-xl border border-border bg-card p-3">
-        <Input
-          placeholder="Search a country…"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-        />
-        <ul className="mt-3 grid max-h-56 grid-cols-1 gap-1 overflow-y-auto sm:grid-cols-2">
-          {filtered.map((c) => {
-            const sel = selected.has(c.id);
-            return (
-              <li key={c.id}>
-                <button
-                  type="button"
-                  onClick={() => toggle(c.id)}
-                  className={cn(
-                    "flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-sm transition-colors",
-                    sel
-                      ? "bg-ai-soft font-semibold text-ai"
-                      : "text-foreground hover:bg-accent"
-                  )}
-                >
-                  <span
-                    className={cn(
-                      "grid size-4 shrink-0 place-items-center rounded border",
-                      sel ? "border-ai bg-ai text-ai-foreground" : "border-border"
-                    )}
-                  >
-                    {sel ? <Check className="size-3" /> : null}
-                  </span>
-                  {c.name}
-                </button>
-              </li>
-            );
-          })}
-          {filtered.length === 0 ? (
-            <li className="px-2.5 py-2 text-sm text-muted-foreground">No match.</li>
+      {/* Compact search (results only while typing) */}
+      <div>
+        <div className="relative">
+          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            className="px-9"
+            placeholder="Search to add a country…"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+          {query ? (
+            <button
+              type="button"
+              onClick={() => setQuery("")}
+              aria-label="Clear search"
+              className="absolute right-2 top-1/2 grid size-7 -translate-y-1/2 place-items-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground"
+            >
+              <X className="size-4" />
+            </button>
           ) : null}
-        </ul>
+        </div>
+
+        {q ? (
+          <ul className="mt-2 max-h-52 overflow-y-auto rounded-lg border border-border bg-card">
+            {results.length > 0 ? (
+              results.map((c) => {
+                const sel = selected.has(c.id);
+                return (
+                  <li key={c.id}>
+                    <button
+                      type="button"
+                      onClick={() => toggle(c.id)}
+                      className={cn(
+                        "flex w-full items-center justify-between px-3 py-2 text-sm transition-colors",
+                        sel ? "bg-ai-soft font-semibold text-ai" : "hover:bg-accent"
+                      )}
+                    >
+                      {c.name}
+                      {sel ? <Check className="size-4" /> : null}
+                    </button>
+                  </li>
+                );
+              })
+            ) : (
+              <li className="px-3 py-2 text-sm text-muted-foreground">No match.</li>
+            )}
+          </ul>
+        ) : null}
       </div>
 
-      {/* Selected chips */}
+      {/* Selected chips (click to remove) */}
       <div>
         <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           Selected ({selected.size})
         </p>
         {selected.size === 0 ? (
           <p className="mt-2 text-sm text-muted-foreground">
-            None yet — use Quick pick, the map, or the list.
+            None yet — use Quick pick, tap the map, or search.
           </p>
         ) : (
           <div className="mt-2 flex flex-wrap gap-2">
