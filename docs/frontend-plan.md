@@ -88,9 +88,23 @@ Phase B in progress:
 
 Phase B is functionally complete (onboarding: gate + role + preferences + CV).
 
-- Settings page (`/settings`): DONE 2026-08-31. Jobseekers edit role, preferences (reuses
-  PreferencesStep with a "Save preferences" button), and replace their CV; each section saves on its
-  own button with a confirmation toast. Linked from the header. Reuses the existing PUT endpoints.
+- Settings page (`/settings`): DONE 2026-08-31. Jobseekers edit role and preferences (reuses
+  PreferencesStep with a "Save preferences" button); each section saves with a confirmation toast.
+  Two-column on wide screens (container queries); CV moved out to `/cv`.
+
+## Beyond Phase B (done 2026-08-31)
+
+- **CV-fact extraction** (candidate half of M6): KIConnect wired in; `cv.facts` worker turns CV text
+  into structured facts; shown on the dedicated `/cv` page.
+- **`/cv` page**: CV file + replace + in-app **PDF viewer** (react-pdf/pdf.js, self-hosted worker,
+  mobile-first) + the extracted facts.
+- **Design polish**: Manrope typeface (next/font), a consistent type scale (`t-display/h1/h2/h3/
+  lead/eyebrow`), `shadow-card` elevation; responsive/big-screen layouts (max-w-5xl pages, two-column
+  `/cv` and Settings). Baseline design still has room to grow.
+- **Auth**: fixed hourly logouts — 8h rolling session + Keycloak refresh-token rotation.
+
+Parked / next: auto-clean old CVs on replace; redefine **M3 (roles & shared pools)** to move toward
+matches; matching/job collection postponed. See memory for details.
 
 Browser test: sign in as `seeker`.
 
