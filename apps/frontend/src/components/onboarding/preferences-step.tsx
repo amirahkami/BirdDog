@@ -25,9 +25,11 @@ type Home = {
 export function PreferencesStep({
   initial,
   onSaved,
+  submitLabel,
 }: {
   initial: OnboardingState;
   onSaved: (state: OnboardingState) => void;
+  submitLabel?: string;
 }) {
   const [onsite, setOnsite] = React.useState(initial.accepts_onsite);
   const [hybrid, setHybrid] = React.useState(initial.accepts_hybrid);
@@ -142,7 +144,9 @@ export function PreferencesStep({
         body: JSON.stringify(payload),
       });
       if (!res.ok) throw new Error();
-      onSaved((await res.json()) as OnboardingState);
+      const data = (await res.json()) as OnboardingState;
+      setSaving(false);
+      onSaved(data);
     } catch {
       setError("Couldn't save. Please check your entries and try again.");
       setSaving(false);
@@ -257,6 +261,8 @@ export function PreferencesStep({
           <>
             <Loader2 className="animate-spin" /> Saving…
           </>
+        ) : submitLabel ? (
+          submitLabel
         ) : (
           <>
             Continue <ArrowRight />

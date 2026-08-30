@@ -86,9 +86,11 @@ Phase B in progress:
   says "matches will be ready soon" and the user proceeds to the dashboard.
 - B5 wizard shell: done earlier.
 
-Phase B is functionally complete (onboarding: gate + role + preferences + CV). Remaining queued item:
-a Settings/Profile page to edit preferences after onboarding (reuses PreferencesStep; backend PUT
-endpoints already allow updates).
+Phase B is functionally complete (onboarding: gate + role + preferences + CV).
+
+- Settings page (`/settings`): DONE 2026-08-31. Jobseekers edit role, preferences (reuses
+  PreferencesStep with a "Save preferences" button), and replace their CV; each section saves on its
+  own button with a confirmation toast. Linked from the header. Reuses the existing PUT endpoints.
 
 Browser test: sign in as `seeker`.
 

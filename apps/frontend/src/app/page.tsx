@@ -39,6 +39,11 @@ export default async function Home() {
             <Link href="/admin">Admin</Link>
           </Button>
         ) : null}
+        {isJobseeker ? (
+          <Button asChild variant="ghost" size="sm">
+            <Link href="/settings">Settings</Link>
+          </Button>
+        ) : null}
         <SignOutButton />
       </SiteHeader>
 
