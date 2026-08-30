@@ -114,14 +114,14 @@ export function CountryPicker() {
                       onClick={() => toggle(id)}
                       style={{
                         default: {
-                          fill: sel ? "var(--ai)" : "var(--secondary)",
-                          stroke: "var(--background)",
-                          strokeWidth: 0.6,
+                          fill: sel ? "var(--ai)" : "var(--map-land)",
+                          stroke: "var(--map-border)",
+                          strokeWidth: 0.5,
                           outline: "none",
                           transition: "fill 150ms ease",
                         },
                         hover: {
-                          fill: sel ? "var(--ai)" : "var(--accent)",
+                          fill: sel ? "var(--ai)" : "var(--map-hover)",
                           stroke: "var(--ai)",
                           strokeWidth: 1,
                           outline: "none",

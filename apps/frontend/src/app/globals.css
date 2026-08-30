@@ -43,6 +43,10 @@
   --match-soft: #e4f6ee;
   --mid: #b7770b;                /* amber — worth a look */
   --mid-soft: #faf0da;
+
+  --map-land: #d5deea;           /* map: unselected country */
+  --map-hover: #c2cee0;
+  --map-border: #ffffff;
 }
 
 .dark {
@@ -79,6 +83,10 @@
   --match-soft: #10281f;
   --mid: #e0a94b;
   --mid-soft: #2a2214;
+
+  --map-land: #2a3a58;           /* map: unselected country (lifted above the card) */
+  --map-hover: #3a4d72;
+  --map-border: #0c1322;
 }
 
 @theme inline {
