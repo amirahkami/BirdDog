@@ -35,17 +35,20 @@ export function SettingsClient({ initial }: { initial: OnboardingState }) {
           <RoleFields role={state.desired_role ?? ""} onSaved={saved("Role saved")} />
         </SettingsRow>
 
-        <SettingsRow
-          title="Preferences"
-          description="These shape which jobs you'll be matched with — work mode, location, and countries."
-        >
-          <PreferencesStep
-            initial={state}
-            onSaved={saved("Preferences saved")}
-            submitLabel="Save preferences"
-            hideHeader
-          />
-        </SettingsRow>
+        <section className="py-8">
+          <h2 className="t-h2 text-foreground">Preferences</h2>
+          <p className="mt-1 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+            These shape which jobs you&apos;ll be matched with — work mode, location, and countries.
+          </p>
+          <div className="mt-6">
+            <PreferencesStep
+              initial={state}
+              onSaved={saved("Preferences saved")}
+              submitLabel="Save preferences"
+              hideHeader
+            />
+          </div>
+        </section>
       </div>
 
       {toast ? (

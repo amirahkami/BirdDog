@@ -156,7 +156,7 @@ export function PreferencesStep({
   }
 
   return (
-    <form onSubmit={submit} className="space-y-8">
+    <form onSubmit={submit} className="@container space-y-8">
       {hideHeader ? null : (
         <div>
           <h1 className="t-h1 text-foreground">Your preferences</h1>
@@ -166,24 +166,33 @@ export function PreferencesStep({
         </div>
       )}
 
-      <Section label="Work mode">
-        <div className="flex flex-wrap gap-2">
-          <Choice active={onsite} onClick={() => setOnsite((v) => !v)}>On-site</Choice>
-          <Choice active={hybrid} onClick={() => setHybrid((v) => !v)}>Hybrid</Choice>
-          <Choice active={remote} onClick={() => setRemote((v) => !v)}>Remote</Choice>
-        </div>
-      </Section>
+      <div className="grid gap-x-8 gap-y-8 @3xl:grid-cols-2">
+        <Section label="Work mode">
+          <div className="flex flex-wrap gap-2">
+            <Choice active={onsite} onClick={() => setOnsite((v) => !v)}>On-site</Choice>
+            <Choice active={hybrid} onClick={() => setHybrid((v) => !v)}>Hybrid</Choice>
+            <Choice active={remote} onClick={() => setRemote((v) => !v)}>Remote</Choice>
+          </div>
+        </Section>
 
-      <Section label="Employment">
-        <div className="flex flex-wrap gap-2">
-          <Choice active={fullTime} onClick={() => setFullTime((v) => !v)}>Full-time</Choice>
-          <Choice active={partTime} onClick={() => setPartTime((v) => !v)}>Part-time</Choice>
-        </div>
-      </Section>
+        <Section label="Employment">
+          <div className="flex flex-wrap gap-2">
+            <Choice active={fullTime} onClick={() => setFullTime((v) => !v)}>Full-time</Choice>
+            <Choice active={partTime} onClick={() => setPartTime((v) => !v)}>Part-time</Choice>
+          </div>
+        </Section>
+      </div>
 
-      {needHome ? (
-        <>
-          <Section label="Where do you live?">
+      {needHome || remote ? (
+        <div
+          className={cn(
+            "grid gap-x-8 gap-y-8 @3xl:items-start",
+            needHome && remote && "@3xl:grid-cols-2"
+          )}
+        >
+          {needHome ? (
+            <div className="space-y-8">
+              <Section label="Where do you live?">
             <div className="flex flex-col gap-2 sm:flex-row">
               <select
                 value={country}
@@ -243,17 +252,20 @@ export function PreferencesStep({
               showMap={false}
             />
           </Section>
-        </>
-      ) : null}
-
-      {remote ? (
-        <Section label="Where would you work remotely?">
+            </div>
+          ) : null}
+          {remote ? (
+            <div>
+              <Section label="Where would you work remotely?">
           <CountryPicker
             value={remoteCountries}
             onChange={setRemoteCountries}
             presets={REMOTE_PRESETS}
           />
-        </Section>
+              </Section>
+            </div>
+          ) : null}
+        </div>
       ) : null}
 
       {error ? <p className="text-sm text-destructive">{error}</p> : null}
