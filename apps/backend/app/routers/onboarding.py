@@ -12,8 +12,10 @@ from app.cv import CVStorage, CVValidationError
 from app.db.models import CVDocument, UserProfile
 from app.db.session import get_session
 from app.repositories import WorkItemRepository
+from app.geocoding import geocode_postal
 from app.schemas.onboarding import (
     CVStatusResponse,
+    GeocodeResult,
     OnboardingResponse,
     OnboardingStepsResponse,
     PreferencesStepRequest,
@@ -24,6 +26,20 @@ from app.schemas.onboarding import (
 router = APIRouter(prefix="/onboarding", tags=["onboarding"])
 settings = get_settings()
 SessionDependency = Annotated[Session, Depends(get_session)]
+
+
+@router.get("/geocode", response_model=GeocodeResult)
+def geocode(country_code: str, postal_code: str, user: AuthenticatedUser) -> GeocodeResult:
+    code = country_code.strip()
+    if len(code) != 2 or not code.isalpha():
+        raise HTTPException(status_code=422, detail="country_code must be two letters")
+    try:
+        result = geocode_postal(code, postal_code)
+    except Exception as error:  # unsupported country / lookup failure
+        raise HTTPException(status_code=400, detail="Unsupported country") from error
+    if result is None:
+        raise HTTPException(status_code=404, detail="Location not found")
+    return GeocodeResult(**result)
 
 
 @router.get("", response_model=OnboardingResponse)

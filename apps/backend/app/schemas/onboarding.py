@@ -94,6 +94,14 @@ class PreferencesStepRequest(BaseModel):
         return self
 
 
+class GeocodeResult(BaseModel):
+    country_code: str
+    postal_code: str
+    city: str | None
+    latitude: float
+    longitude: float
+
+
 class CVStatusResponse(BaseModel):
     id: UUID
     original_filename: str
