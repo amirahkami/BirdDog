@@ -122,11 +122,33 @@ def test_complete_onboarding_and_cv_extraction(monkeypatch, tmp_path: Path) -> N
                     WorkItem.subject_id == document_id,
                 )
             ) is not None
+
+        # Replacing the CV auto-cleans the previous one (row, facts, work items).
+        replacement = client.post(
+            "/onboarding/cv",
+            files={"file": ("neu.pdf", _pdf_bytes(), "application/pdf")},
+        )
+        assert replacement.status_code == 202
+        with Session(engine) as session:
+            remaining = session.scalars(
+                select(CVDocument.id).where(CVDocument.user_id == user_id)
+            ).all()
+            assert len(remaining) == 1
+            assert document_id not in remaining
+            assert (
+                session.scalar(
+                    select(WorkItem).where(WorkItem.subject_id == document_id)
+                )
+                is None
+            )
     finally:
         app.dependency_overrides.clear()
         with Session(engine) as session, session.begin():
-            if document_id is not None:
-                session.execute(delete(WorkItem).where(WorkItem.subject_id == document_id))
+            cv_ids = session.scalars(
+                select(CVDocument.id).where(CVDocument.user_id == user_id)
+            ).all()
+            if cv_ids:
+                session.execute(delete(WorkItem).where(WorkItem.subject_id.in_(cv_ids)))
             session.execute(delete(User).where(User.id == user_id))
 
 

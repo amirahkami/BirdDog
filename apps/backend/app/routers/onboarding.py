@@ -1,15 +1,16 @@
 from __future__ import annotations
 
+import logging
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, File, HTTPException, Response, UploadFile, status
-from sqlalchemy import select, update
+from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
 from app.core.auth import AuthenticatedUser
 from app.core.config import get_settings
 from app.cv import CVStorage, CVValidationError
-from app.db.models import CVDocument, UserProfile
+from app.db.models import CVDocument, UserProfile, WorkItem
 from app.db.session import get_session
 from app.repositories import WorkItemRepository
 from app.geocoding import geocode_postal
@@ -26,6 +27,7 @@ from app.schemas.onboarding import (
 
 router = APIRouter(prefix="/onboarding", tags=["onboarding"])
 settings = get_settings()
+logger = logging.getLogger(__name__)
 SessionDependency = Annotated[Session, Depends(get_session)]
 
 
@@ -151,6 +153,7 @@ async def upload_cv(
             detail={"code": error.code, "message": str(error)},
         ) from error
 
+    old_storage_keys: list[str] = []
     try:
         with session.begin():
             profile = _profile_for_update(session, user.id)
@@ -159,11 +162,26 @@ async def upload_cv(
                     status_code=status.HTTP_409_CONFLICT,
                     detail="Onboarding preferences changed during upload",
                 )
-            session.execute(
-                update(CVDocument)
-                .where(CVDocument.user_id == user.id, CVDocument.is_current.is_(True))
-                .values(is_current=False)
-            )
+            # Keep only the newest CV: collect any existing ones to remove.
+            existing = session.scalars(
+                select(CVDocument).where(CVDocument.user_id == user.id)
+            ).all()
+            old_ids = [existing_doc.id for existing_doc in existing]
+            old_storage_keys = [existing_doc.storage_key for existing_doc in existing]
+
+            if old_ids:
+                # Remove replaced CVs (and their work items) BEFORE inserting the new
+                # one, so the one-current-CV-per-user constraint holds. Facts live on
+                # the row, so they go with it.
+                session.execute(
+                    delete(WorkItem).where(
+                        WorkItem.subject_type == "cv_document",
+                        WorkItem.subject_id.in_(old_ids),
+                    )
+                )
+                session.execute(delete(CVDocument).where(CVDocument.id.in_(old_ids)))
+                session.flush()
+
             document = CVDocument(
                 user_id=user.id,
                 original_filename=stored.original_filename,
@@ -178,6 +196,7 @@ async def upload_cv(
             )
             session.add(document)
             session.flush()
+
             WorkItemRepository.enqueue(
                 session,
                 kind="cv.extract",
@@ -188,6 +207,14 @@ async def upload_cv(
                 max_attempts=2,
             )
             profile.onboarding_status = "processing"
+
+        # Committed — remove the replaced files (best-effort; orphans are harmless).
+        for storage_key in old_storage_keys:
+            try:
+                storage.delete(storage_key)
+            except Exception:
+                logger.warning("Could not delete replaced CV file %s", storage_key)
+
         return _response(profile, document)
     except Exception:
         storage.delete(stored.storage_key)
